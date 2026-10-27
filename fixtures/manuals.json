@@ -1,0 +1,5 @@
+[
+  {"title":"Equipment repairs","body":"For a projector repair, record the room, asset tag and error message. A service operator approves the request before a repair ticket is created. Do not promise a repair time before technician confirmation."},
+  {"title":"Borrowing equipment","body":"Equipment collection requires a confirmed reservation and an identity check at the service desk. Return borrowed equipment before the reservation ends. Contact the service operator when an item is damaged."},
+  {"title":"Network troubleshooting","body":"If the network connection fails, record whether other devices are affected and whether the connection uses Ethernet or WiFi. Check the cable and restart the local adapter. Never share passwords in a support ticket."}
+]

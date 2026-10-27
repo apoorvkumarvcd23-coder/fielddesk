@@ -1,0 +1,17 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: fielddesk
+      POSTGRES_DB: fielddesk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run python manage.py keys first}
+    ports:
+      - "127.0.0.1:5438:5432"
+    volumes:
+      - fielddesk-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fielddesk -d fielddesk"]
+      interval: 3s
+      retries: 15
+volumes:
+  fielddesk-data:

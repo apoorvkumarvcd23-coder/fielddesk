@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FieldDesk</title>
+<style>body{font:16px system-ui;max-width:850px;margin:40px auto;padding:20px;background:#f5f7fa;color:#16263a}section{background:white;padding:24px;border-radius:12px;margin:18px 0}input,textarea,button{font:inherit;padding:10px;margin:5px 0;box-sizing:border-box}input,textarea{width:100%}button{background:#174873;color:white;border:0;border-radius:5px;cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere}small{color:#52657b}</style>
+<h1>FieldDesk</h1><p>Service knowledge with source citations and human-approved requests.</p><small>Local prototype · offline extractive answers · no paid AI calls</small>
+<section><label>Access key <input id="key" type="password" autocomplete="off"></label><small>Use your generated user key. Operator key is required for approvals. Keys stay in this page's memory.</small></section>
+<section><h2>Ask the service desk</h2><textarea id="question" rows="2">How do I request a projector repair?</textarea><button id="ask">Find an answer</button><pre id="answer" role="status"></pre></section>
+<section><h2>Request a service ticket</h2><input id="title" placeholder="Projector in room A is not working"><button id="propose">Propose request</button><pre id="proposal" role="status"></pre></section>
+<section><h2>Operator queue</h2><button id="queue">Load requests</button><div id="actions"></div></section>
+<script>
+async function api(path,body){const r=await fetch(path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','Authorization':'Bearer '+document.getElementById('key').value},...(body?{body:JSON.stringify(body)}:{})});const j=await r.json();if(!r.ok)throw new Error(j.detail||'Request failed');return j}
+function show(id,data){document.getElementById(id).textContent=typeof data==='string'?data:JSON.stringify(data,null,2)}
+document.getElementById('ask').onclick=async()=>{try{show('answer',await api('/chat',{message:document.getElementById('question').value}))}catch(e){show('answer',e.message)}};
+let pendingKey=null,pendingTitle=null;
+document.getElementById('propose').onclick=async()=>{const title=document.getElementById('title').value;if(title!==pendingTitle){pendingKey=crypto.randomUUID();pendingTitle=title}try{show('proposal',await api('/actions',{title,request_key:pendingKey}))}catch(e){show('proposal',e.message)}};
+document.getElementById('queue').onclick=async()=>{const box=document.getElementById('actions');box.replaceChildren();try{for(const a of await api('/actions')){const p=document.createElement('p');p.textContent=a.title+' — '+a.status;box.append(p);if(a.status==='pending'){const b=document.createElement('button');b.textContent='Approve ticket';b.onclick=async()=>{try{p.textContent=JSON.stringify(await api('/actions/'+a.id+'/approve',{}));b.remove()}catch(e){p.textContent=e.message}};box.append(b)}}}catch(e){box.textContent=e.message}};
+</script></html>
