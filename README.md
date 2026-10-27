@@ -9,6 +9,8 @@ and proposes a repair request without letting a chatbot execute arbitrary action
 
 **Python · FastAPI · SQLite · optional PostgreSQL/pgvector · plain HTML/JS**
 
+![Local prototype showing a cited equipment-repair answer](docs/demo.jpg)
+
 ## Try it locally
 
 Python 3.12+. No model account, GPU or paid API is required.
