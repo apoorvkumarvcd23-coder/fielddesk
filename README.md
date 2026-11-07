@@ -1,5 +1,12 @@
 # FieldDesk
 
+## December 2026 delivery
+
+The current December v1 plan adds versioned knowledge, document permissions, durable indexing and an evaluated local-model path while retaining the working offline baseline.
+
+See the [implementation plan and acceptance checks](docs/IMPLEMENTATION_PLAN.md).
+The target is 31 December 2026; task completion requires verified evidence.
+
 [![Tests](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml/badge.svg)](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml)
 
 A small service-desk prototype that finds cited operating instructions and
