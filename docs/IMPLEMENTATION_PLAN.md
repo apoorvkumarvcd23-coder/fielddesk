@@ -1,5 +1,16 @@
 # FieldDesk — December 2026 implementation plan
 
+## Immediate core milestone — 17 November 2026
+
+The core is needed for resume demonstrations within the next ten days. On 8,
+11 and 14 November build migrations/chunks/jobs, actual local embedding/LLM
+retrieval in PostgreSQL/pgvector, permission filtering, source-validated answers,
+review queue/interface and the existing approved-ticket workflow. Include real
+model evidence, restart/idempotency checks and eight permission-denial cases.
+Record the 16-case diagnostic honestly. The larger held-out evaluation and full
+v1 quality/hardening gates follow after the core, through December. Final core
+acceptance is 17 November; mocked inference alone does not satisfy it.
+
 ## Source-grounded starting point
 
 Reviewed main `52824bb4892e5fe690db34d1b0de06e953f96c51`: `app.py`, settings,
