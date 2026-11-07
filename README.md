@@ -87,6 +87,22 @@ CI runs SQLite and the real PostgreSQL/pgvector adapter. Locally, setting
 `TEST_DATABASE_URL` runs the adapter suite against a **disposable** database;
 tests truncate its four application tables. Never use a personal database.
 
+## Retrieval evaluation
+
+```sh
+python evaluate_retrieval.py
+```
+
+Evaluates 16 labelled synthetic questions through the chat API using a temporary
+SQLite database, without changing your demo database or calling model services.
+The current baseline retrieves the expected first source for 9/10 answerable
+questions and correctly hands off 4/6 unsupported/escalation questions. All 18
+returned citations match their sources, but correct quotes do not guarantee an
+answer is relevant. See [the full evaluation and known misses](docs/retrieval-evaluation.md)
+before comparing new embedding adapters. These are small development fixtures,
+not production quality claims. `--fail-on-miss` enables a strict experimental gate;
+the current baseline has known misses and intentionally fails that gate.
+
 ## Scope and tradeoffs
 
 This is a **single-workspace local prototype**, not the complete future project
