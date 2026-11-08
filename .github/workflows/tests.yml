@@ -12,6 +12,8 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements-dev.txt
       - run: python -m pytest -q
+      - name: Process crash/restart indexing demo (offline hash adapter)
+        run: python demo_indexing.py
   pgvector:
     runs-on: ubuntu-latest
     services:
@@ -33,3 +35,5 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements-dev.txt
       - run: python -m pytest -q
+      - name: Clean disposable PostgreSQL indexing demo (offline hash adapter)
+        run: python demo_indexing.py --postgres

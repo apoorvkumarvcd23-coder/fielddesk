@@ -8,6 +8,15 @@ See the [implementation plan and acceptance checks](docs/IMPLEMENTATION_PLAN.md)
 The core demo target is **17 November 2026**; feature delivery and hardening
 continue through **31 December 2026**. Completion requires verified evidence.
 
+**CORE02 delivered:** versioned knowledge, exact source-offset chunks, durable
+indexing jobs and a separate local-model embedding path. A real PostgreSQL/
+pgvector run indexed 768-dimensional nomic vectors, recovered a crashed worker
+process and replaced a version without duplicate chunks. Chat still uses the
+original hash/extractive corpus; local-model answers and document grants are
+remaining core work. See the [indexing runbook](docs/INDEXING_RUNBOOK.md),
+[claim/evidence ledger](docs/CLAIM_EVIDENCE.md) and
+[actual local-model readiness report](docs/model-readiness-2026-11-09.json).
+
 [![Tests](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml/badge.svg)](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml)
 
 A small service-desk prototype that finds cited operating instructions and
@@ -52,6 +61,13 @@ Interactive API documentation: http://127.0.0.1:8101/docs. Use
   ticket creation. Concurrent approvals create one ticket.
 - Trace IDs, outcomes and elapsed time without storing chat text or keys.
 - Local browser interface and automated failure/concurrency tests.
+- Checked database migrations that adopt the old four-table layout without
+  deleting documents or tickets; immutable versions and bounded Unicode chunks.
+- Operator-only asynchronous knowledge ingestion/status/source endpoints, plus
+  a separate worker with leases, fenced atomic publication and bounded retries.
+- Separate model/digest/dimension/chunking spaces: learned vectors never reuse
+  the existing 256-dimensional hash column. The old ready version remains active
+  until its requested replacement finishes.
 
 ```mermaid
 flowchart LR
@@ -94,6 +110,13 @@ approval, expiry, missing tickets, trace privacy and persistence after restart.
 CI runs SQLite and the real PostgreSQL/pgvector adapter. Locally, setting
 `TEST_DATABASE_URL` runs the adapter suite against a **disposable** database;
 tests truncate its four application tables. Never use a personal database.
+
+New indexing checks also recreate their knowledge schema in a disposable
+`*_test` database. They cover concurrent claims, process/lease recovery, source
+offsets, model-space separation, failed publication rollback and version ordering.
+CI additionally runs `python demo_indexing.py` (SQLite) and
+`python demo_indexing.py --postgres` (a new disposable Docker database), both
+with the deterministic hash adapter. Real Ollama evidence is recorded separately.
 
 ## Retrieval evaluation
 

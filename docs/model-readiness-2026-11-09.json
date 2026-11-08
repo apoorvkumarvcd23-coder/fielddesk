@@ -1,0 +1,47 @@
+{
+  "purpose": "Real local model readiness only; not retrieval or answer-quality evidence",
+  "recorded_at_utc": "2026-11-08T19:20:47.099262+00:00",
+  "ollama_version": "0.17.7",
+  "hardware": {
+    "os": "Windows",
+    "architecture": "AMD64",
+    "logical_cpus": 20,
+    "gpu_at_probe": "NVIDIA GeForce RTX 4070 Laptop GPU, 8188 MiB, 6740 MiB"
+  },
+  "embedding_space": {
+    "id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+    "backend": "ollama",
+    "model": "nomic-embed-text:v1.5",
+    "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "dimensions": 768,
+    "chunking_version": "chars-600-overlap-80-v1"
+  },
+  "embedding_probe": {
+    "inputs": 2,
+    "dimensions": [
+      768,
+      768
+    ],
+    "norms": [
+      1.0,
+      1.0
+    ],
+    "elapsed_seconds_including_setup": 4.504
+  },
+  "generation_probe": {
+    "model": "qwen3.5:9b",
+    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+    "options": {
+      "temperature": 0,
+      "seed": 7,
+      "num_ctx": 2048,
+      "num_predict": 32
+    },
+    "prompt": "Reply with exactly the single word READY.",
+    "response": "READY",
+    "prompt_eval_count": 20,
+    "eval_count": 2,
+    "total_duration_ns": 9187654600,
+    "done": true
+  }
+}

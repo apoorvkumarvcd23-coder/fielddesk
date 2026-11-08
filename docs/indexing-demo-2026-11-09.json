@@ -1,0 +1,51 @@
+{
+  "scope": "Indexing foundation only; chat still uses the separate offline hash corpus",
+  "storage": "PostgreSQL/pgvector",
+  "server_version": "17.11 (Debian 17.11-1.pgdg12+2)",
+  "backend": "ollama",
+  "model": "nomic-embed-text:v1.5",
+  "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+  "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+  "dimensions": 768,
+  "stored_dimensions_min_max": [
+    768,
+    768
+  ],
+  "first_job": {
+    "id": "ab0e973a31cd05db12a792b954c05b8c29d1b44a759b38dd91f5313b78e70837",
+    "version_id": "8f90a91b1dfdf38edcc9cd7a14ea02343aabc1cdf465d3eecc02b97ef8b754f2",
+    "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+    "status": "ready",
+    "attempts": 2,
+    "max_attempts": 3,
+    "available_at": 1794166396.2685997,
+    "lease_until": null,
+    "last_error": null,
+    "document_id": "91e817f92faac2dbec6b6af53abecf4767e5db14d4a8023324a06e22d9775e05",
+    "model": "nomic-embed-text:v1.5",
+    "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "dimensions": 768,
+    "indexed_chunks": 4
+  },
+  "worker_crash_exit_code": 23,
+  "restarted_worker_completed": true,
+  "exact_replay_no_duplicates": true,
+  "source_offsets_verified": true,
+  "previous_ready_retained_until_replacement": true,
+  "replacement_job": {
+    "id": "0afab97ef1fea45a08154e9a8f3d2e7f8aa5e212a900dfc9223d179d73f74b77",
+    "version_id": "b651a877c68a7f7cd10ff3985a4ff6902bd11e686d07c3c6b4354cee67d89ede",
+    "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+    "status": "ready",
+    "attempts": 1,
+    "max_attempts": 3,
+    "available_at": 1794166399.1341043,
+    "lease_until": null,
+    "last_error": null,
+    "document_id": "91e817f92faac2dbec6b6af53abecf4767e5db14d4a8023324a06e22d9775e05",
+    "model": "nomic-embed-text:v1.5",
+    "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "dimensions": 768,
+    "indexed_chunks": 4
+  }
+}

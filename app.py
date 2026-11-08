@@ -1,13 +1,10 @@
-"""Small offline retrieval/approval prototype. No model APIs or company data."""
+"""Offline retrieval/approval plus operator-only versioned indexing foundation."""
 import hashlib
 import json
-import math
 import os
 import re
 import secrets
-import sqlite3
 import time
-from contextlib import contextmanager
 from pathlib import Path
 from uuid import uuid4
 
@@ -15,57 +12,9 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-
-def embedding(text):
-    """Signed hashed bag-of-words baseline, NOT learned semantic embeddings."""
-    values = [0.0] * 256
-    for word in re.findall(r"[a-z0-9]+", text.lower()):
-        digest = hashlib.sha256(word.encode()).digest()
-        values[digest[0]] += 1 if digest[1] % 2 else -1
-    norm = math.sqrt(sum(x * x for x in values)) or 1
-    return [x / norm for x in values]
-
-
-class Database:
-    def __init__(self, url):
-        self.url = url
-        self.postgres = url.startswith(('postgresql://', 'postgres://'))
-
-    @contextmanager
-    def connect(self):
-        if self.postgres:
-            import psycopg
-            from psycopg.rows import dict_row
-            conn = psycopg.connect(self.url, row_factory=dict_row)
-        else:
-            conn = sqlite3.connect(self.url, timeout=10)
-            conn.row_factory = sqlite3.Row
-            conn.execute('PRAGMA foreign_keys=ON')
-            conn.execute('BEGIN IMMEDIATE')
-        try:
-            yield conn
-            conn.commit()
-        except Exception:
-            conn.rollback()
-            raise
-        finally:
-            conn.close()
-
-    def run(self, conn, sql, params=()):
-        return conn.execute(sql.replace('?', '%s') if self.postgres else sql, params)
-
-    def initialize(self):
-        with self.connect() as c:
-            if self.postgres:
-                c.execute('CREATE EXTENSION IF NOT EXISTS vector')
-            vec = 'vector(256)' if self.postgres else 'TEXT'
-            for sql in [
-                f'CREATE TABLE IF NOT EXISTS documents (id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, embedding {vec} NOT NULL)',
-                'CREATE TABLE IF NOT EXISTS actions (id TEXT PRIMARY KEY, request_key TEXT UNIQUE NOT NULL, title TEXT NOT NULL, status TEXT NOT NULL, created_at DOUBLE PRECISION NOT NULL, ticket_id TEXT)',
-                'CREATE TABLE IF NOT EXISTS tickets (id TEXT PRIMARY KEY, title TEXT NOT NULL, status TEXT NOT NULL)',
-                'CREATE TABLE IF NOT EXISTS traces (id TEXT PRIMARY KEY, kind TEXT NOT NULL, elapsed_ms DOUBLE PRECISION NOT NULL, outcome TEXT NOT NULL)'
-            ]:
-                c.execute(sql)
+from embeddings import HashEmbedder, embedding
+from knowledge import KnowledgeStore
+from storage import Database
 
 
 class Strict(BaseModel):
@@ -79,6 +28,13 @@ class Document(Strict):
 
 class Chat(Strict):
     message: str = Field(min_length=1, max_length=2000)
+
+
+class KnowledgeDocument(Document):
+    # Source offsets refer to exact accepted text, including edge whitespace.
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=False)
+    source_key: str = Field(pattern=r'^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$')
+    space_id: str | None = Field(default=None, pattern=r'^[a-f0-9]{64}$')
 
 
 class Action(Strict):
@@ -95,6 +51,9 @@ def create_app(database_url=None, user_key=None, operator_key=None):
     db.initialize()
     app = FastAPI(title='FieldDesk', version='0.1.0')
     app.state.db = db
+    knowledge = KnowledgeStore(db)
+    knowledge.register_space(HashEmbedder.space)
+    app.state.knowledge = knowledge
 
     def identity(authorization: str = Header(default='')):
         if not authorization.startswith('Bearer '):
@@ -117,6 +76,38 @@ def create_app(database_url=None, user_key=None, operator_key=None):
     @app.get('/health')
     def health():
         return {'status': 'ok', 'storage': 'pgvector' if db.postgres else 'sqlite-vector-baseline'}
+
+    @app.get('/knowledge/spaces', dependencies=[Depends(operator)])
+    def spaces():
+        return knowledge.spaces()
+
+    @app.post('/knowledge/documents', dependencies=[Depends(operator)], status_code=202)
+    def ingest_knowledge(doc: KnowledgeDocument):
+        try:
+            return knowledge.ingest(doc.source_key, doc.title, doc.body, doc.space_id)
+        except ValueError as failure:
+            raise HTTPException(422, str(failure)) from None
+
+    @app.get('/knowledge/jobs/{job_id}', dependencies=[Depends(operator)])
+    def index_status(job_id: str):
+        result = knowledge.job(job_id)
+        if result is None:
+            raise HTTPException(404, 'Unknown index job')
+        return result
+
+    @app.get('/knowledge/documents/{document_id}', dependencies=[Depends(operator)])
+    def knowledge_document(document_id: str):
+        result = knowledge.document(document_id)
+        if result is None:
+            raise HTTPException(404, 'Unknown knowledge document')
+        return result
+
+    @app.get('/knowledge/versions/{version_id}/chunks', dependencies=[Depends(operator)])
+    def knowledge_chunks(version_id: str, space_id: str = HashEmbedder.space.id):
+        result = knowledge.ready_chunks(version_id, space_id)
+        if result is None:
+            raise HTTPException(409, 'Version index is not ready in this embedding space')
+        return result
 
     @app.post('/documents', dependencies=[Depends(operator)], status_code=201)
     def ingest(doc: Document):
