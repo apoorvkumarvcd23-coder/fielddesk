@@ -1,0 +1,14 @@
+[
+  {
+    "source_key": "synthetic-projector-policy",
+    "title": "Synthetic projector repairs",
+    "body": "Projector repair requests require a service ticket. To request a projector repair, record the room code and the fault description in the ticket. An operator must approve the ticket before a technician is assigned. The synthetic support desk opens Monday to Friday, 09:00 to 17:00 UTC.",
+    "readers": ["alice", "operator"]
+  },
+  {
+    "source_key": "synthetic-restricted-access",
+    "title": "Synthetic restricted lab access",
+    "body": "The synthetic restricted lab uses access code VIOLET-927. Only Bob is permitted to read this synthetic test note. The code is a fictional test marker and is not a credential for any real system.",
+    "readers": ["bob"]
+  }
+]

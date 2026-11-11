@@ -6,3 +6,6 @@ __pycache__/
 *.db-*
 .env
 credentials.json
+/artifacts/
+.env.*
+!.env.example

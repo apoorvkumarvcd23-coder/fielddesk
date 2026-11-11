@@ -37,3 +37,35 @@ jobs:
       - run: python -m pytest -q
       - name: Clean disposable PostgreSQL indexing demo (offline hash adapter)
         run: python demo_indexing.py --postgres
+  actual-model-rag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-dev.txt
+      - name: Start loopback-only local CPU Ollama
+        run: docker run --rm -d --name fielddesk-ollama -p 127.0.0.1:11434:11434 ollama/ollama:0.17.7
+      - name: Wait for Ollama
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Fetch public embedding and small CPU generation models
+        run: |
+          docker exec fielddesk-ollama ollama pull nomic-embed-text:v1.5
+          docker exec fielddesk-ollama ollama pull qwen3:0.6b
+      - name: Actual learned pgvector retrieval and structured cited generation
+        run: python demo_rag.py --postgres --generation-model qwen3:0.6b --output artifacts/actual-pgvector-rag.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: actual-pgvector-rag
+          path: artifacts/actual-pgvector-rag.json
+      - name: Stop owned model container
+        if: always()
+        run: docker stop fielddesk-ollama

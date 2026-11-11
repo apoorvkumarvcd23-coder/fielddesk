@@ -8,12 +8,24 @@ See the [implementation plan and acceptance checks](docs/IMPLEMENTATION_PLAN.md)
 The core demo target is **17 November 2026**; feature delivery and hardening
 continue through **31 December 2026**. Completion requires verified evidence.
 
+**CORE05 RAG slice:** seeded identity bearer tokens, explicit document grants,
+learned query embeddings, permission-filtered retrieval and bounded local LLM
+generation are now connected at `/rag/chat`. Citation IDs, exact quotes, source
+offsets and current grants/versions are checked before returning an answer.
+The actual local qwen3.5:9b demonstration answers, hands off unsupported questions,
+denies restricted sources and handles model outage/timeout. See the
+[RAG setup and API runbook](docs/RAG_RUNBOOK.md) and
+[actual local evidence](docs/local-rag-2026-11-11.json). The new actual-model CI job
+checks learned pgvector retrieval separately on Linux/CPU; its result must pass
+before the PostgreSQL RAG gate is considered complete.
+
 **CORE02 delivered:** versioned knowledge, exact source-offset chunks, durable
 indexing jobs and a separate local-model embedding path. A real PostgreSQL/
 pgvector run indexed 768-dimensional nomic vectors, recovered a crashed worker
-process and replaced a version without duplicate chunks. Chat still uses the
-original hash/extractive corpus; local-model answers and document grants are
-remaining core work. See the [indexing runbook](docs/INDEXING_RUNBOOK.md),
+process and replaced a version without duplicate chunks. The original `/chat`
+and HTML interface retain the hash/extractive baseline. The new identity-bound
+RAG API uses a separate corpus and tokens; its operator/review UI and ticket
+integration remain CORE08 work. See the [indexing runbook](docs/INDEXING_RUNBOOK.md),
 [claim/evidence ledger](docs/CLAIM_EVIDENCE.md) and
 [actual local-model readiness report](docs/model-readiness-2026-11-09.json).
 

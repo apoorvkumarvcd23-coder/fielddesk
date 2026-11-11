@@ -1,0 +1,161 @@
+{
+  "inference": "actual Ollama embedding and generation requests, no mocked model adapters",
+  "storage": "SQLite exact scan (not pgvector)",
+  "platform": "Windows",
+  "python": "3.12.14",
+  "embedding": {
+    "backend": "ollama",
+    "model": "nomic-embed-text:v1.5",
+    "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "dimensions": 768,
+    "chunking_version": "chars-600-overlap-80-v1"
+  },
+  "generation": {
+    "model": "qwen3.5:9b",
+    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+    "num_ctx": 4096,
+    "num_predict": 400,
+    "temperature": 0,
+    "seed": 7,
+    "think": false
+  },
+  "indexed_documents": 2,
+  "restricted_source_http_status": 404,
+  "restricted_document_excluded_before_prompt": true,
+  "cases": [
+    {
+      "case": "answerable",
+      "question": "What must I record in a projector repair ticket?",
+      "response": {
+        "answer": "To request a projector repair, you must record the room code and the fault description in the service ticket.",
+        "citations": [
+          {
+            "chunk_id": "1fd27eb14719c2b885c46cbccc0859c301b98d6c939bfafd037cb5ce7d912318",
+            "document_id": "ac693f0b0c4373bcf3c9755d0bcb29ec955fd8ae75b7fb96620ad79e922b2302",
+            "version_id": "b9c7b236601a68bd50d15a296b010f6d2bd935dd4c26c512b12ad16a9853dd98",
+            "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+            "title": "Synthetic projector repairs",
+            "quote": "To request a projector repair, record the room code and the fault description in the ticket.",
+            "start_offset": 52,
+            "end_offset": 144
+          }
+        ],
+        "handoff": false,
+        "reason": "answered",
+        "trace_id": "c4aa0a79-cd40-44c4-b0e2-2c0f492eed02",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "elapsed_ms": 21213.85040000314,
+      "metadata": {
+        "model": "qwen3.5:9b",
+        "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+        "prompt_eval_count": 257,
+        "eval_count": 141,
+        "total_duration": 21084441500,
+        "load_duration": 9477832700,
+        "chunk_ids": [
+          "1fd27eb14719c2b885c46cbccc0859c301b98d6c939bfafd037cb5ce7d912318"
+        ]
+      }
+    },
+    {
+      "case": "unsupported",
+      "question": "What is the price of a projector repair?",
+      "response": {
+        "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+        "citations": [],
+        "handoff": true,
+        "reason": "unsupported",
+        "trace_id": "f405c50c-8cbb-47be-9252-94b8e3dd2ca3",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "elapsed_ms": 13846.790499985218,
+      "metadata": {
+        "model": "qwen3.5:9b",
+        "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+        "prompt_eval_count": 256,
+        "eval_count": 17,
+        "total_duration": 11369955300,
+        "load_duration": 9070624400,
+        "chunk_ids": []
+      }
+    },
+    {
+      "case": "restricted",
+      "question": "What is the restricted lab access code?",
+      "response": {
+        "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+        "citations": [],
+        "handoff": true,
+        "reason": "unsupported",
+        "trace_id": "f53184ad-8fc5-4bdc-89eb-3798d4b76c3e",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "elapsed_ms": 13786.508499993943,
+      "metadata": {
+        "model": "qwen3.5:9b",
+        "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+        "prompt_eval_count": 255,
+        "eval_count": 17,
+        "total_duration": 11218275400,
+        "load_duration": 8937461000,
+        "chunk_ids": []
+      }
+    },
+    {
+      "case": "generation_endpoint_unavailable",
+      "question": "What must I record in a projector repair ticket?",
+      "response": {
+        "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+        "citations": [],
+        "handoff": true,
+        "reason": "model_unavailable",
+        "trace_id": "d2004b38-7e58-45ca-9941-911f6d2c66e9",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "elapsed_ms": 4382.481999986339,
+      "metadata": {
+        "chunk_ids": []
+      }
+    },
+    {
+      "case": "actual_transport_timeout_1ms",
+      "question": "What must I record in a projector repair ticket?",
+      "response": {
+        "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+        "citations": [],
+        "handoff": true,
+        "reason": "model_unavailable",
+        "trace_id": "8f140454-7a9a-4d94-89ca-e27dda9351a7",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "elapsed_ms": 57.76009999681264,
+      "metadata": {
+        "chunk_ids": []
+      }
+    },
+    {
+      "case": "grant_revoked",
+      "question": "What must I record in a projector repair ticket?",
+      "response": {
+        "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+        "citations": [],
+        "handoff": true,
+        "reason": "unsupported",
+        "trace_id": "032f778e-5b54-4104-a8d9-b00f5f49c72f",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "elapsed_ms": 64.37580002238974,
+      "metadata": {
+        "chunk_ids": []
+      }
+    }
+  ],
+  "limits": "Synthetic demonstration, not a held-out quality score or full core release. Citation ID/quote matching does not prove semantic support; inspect the actual answer."
+}

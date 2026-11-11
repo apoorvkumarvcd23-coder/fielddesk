@@ -1,7 +1,8 @@
 # Claim-to-code/test ledger
 
-CORE02 is the versioned indexing foundation, not the complete FieldDesk core.
-No core/release tag is earned by this slice.
+CORE02 indexing and the CORE05 identity/RAG API slice are implemented. Final
+FieldDesk core acceptance still requires the operator/review workflow. No
+core/release tag is earned by these slices.
 
 | Implemented behavior | Code | Evidence |
 | --- | --- | --- |
@@ -16,22 +17,30 @@ No core/release tag is earned by this slice.
 | Real 768-dimensional embeddings persist in native pgvector storage | `OllamaEmbedder`, `demo_indexing.py` | [`indexing-demo-2026-11-09.json`](indexing-demo-2026-11-09.json), vector_dims min/max both 768 |
 | Local generation model can perform bounded inference | `probe_local_models.py` | [`model-readiness-2026-11-09.json`](model-readiness-2026-11-09.json), fixed synthetic prompt and actual digest/counts |
 | Existing ticket workflow and 16-case diagnostic retained | Existing API, `evaluate_retrieval.py` | Original tests plus exact comparison against `retrieval-baseline.json` |
+| Seeded identities use hashed random bearer tokens; role comes from the DB | `rag.py`, migration 3, `rag_manage.py` | Missing/invalid/legacy tokens, client impersonation and disabled identity checks |
+| Explicit grants filter before similarity search and prompting | `EVIDENCE_SQL`, `RagService.retrieve` | Cross-owner/wrong-space source denials, no implicit operator/admin read, captured deterministic prompt evidence |
+| Current grants/enabled state and ready versions are checked at assembly | `RagService.permitted/answer` | Revocation of identity/document/grant and version replacement during generation all suppress output |
+| Local query embeddings use search_query; generation has fixed budgets and no tools | `embeddings.py`, `generation.py` | Transport/prefix/budget checks; actual model/digest/token counters in local report |
+| Unknown/duplicate IDs or fabricated quotes cannot become cited answers | `RagService.answer` | Invalid structured output and fabricated quote tests; exact Unicode offsets |
+| Trace access is owner-scoped; prompts/queries/quotes are not persisted in traces | `rag_traces`, `/rag/traces/{id}` | Cross-identity denial and trace-content assertions |
+| Actual learned model answers and fails closed on unsupported/outage/timeout | `demo_rag.py` | `local-rag-2026-11-11.json`: actual nomic/qwen3.5 inference on SQLite, explicitly not pgvector |
 
-Automated CI uses deterministic/mocked adapters and checks both SQLite and real
-PostgreSQL. Only the separately recorded local-model runs prove actual inference.
+Deterministic CI checks both SQLite and real PostgreSQL. The separate
+`actual-model-rag` CI job downloads public nomic/qwen3:0.6b models and runs
+`demo_rag.py --postgres`; only a successful job/report proves that particular
+Linux/CPU pgvector model integration. The local qwen3.5:9b report proves actual
+inference with SQLite and must not be relabelled as PostgreSQL evidence.
 Their small synthetic workload does not establish retrieval accuracy, answer
 grounding, throughput, production scale or customer use.
 
 ## Remaining core gates
 
-- Bind requests to seeded identities and filter document grants before retrieval;
-  eight identity/document permission-denial cases, revocation and citation checks.
-- Connect learned pgvector retrieval and local generation to chat; validate source/
-  chunk IDs and supporting quotes; show actual model outage/timeout behavior.
+- Verify the new actual-model pgvector CI job/report; local Docker could not start
+  during the 11 November run. Do not treat the SQLite run as PostgreSQL evidence.
 - Operator ingest/job/review interface, unanswered review queue and complete
   approved-ticket end-to-end scenario.
 - Full clean-clone app/worker/model setup, screenshots and complete core acceptance.
 
-Shared-key route denials do not complete the identity/document permission gate.
-The generation readiness probe does not prove a cited RAG answer. See the
+The new identity/document matrix is separate from legacy shared-key route denials.
+The generation readiness probe alone does not prove a cited RAG answer. See the
 implementation plan for the later core and December evaluation/release gates.

@@ -42,7 +42,7 @@ class Action(Strict):
     title: str = Field(min_length=1, max_length=300)
 
 
-def create_app(database_url=None, user_key=None, operator_key=None):
+def create_app(database_url=None, user_key=None, operator_key=None, rag_embedder=None, rag_generator=None):
     db = Database(database_url or os.getenv('DATABASE_URL', 'fielddesk.db'))
     user_key = user_key or os.getenv('FIELDDESK_USER_KEY')
     operator_key = operator_key or os.getenv('FIELDDESK_OPERATOR_KEY')
@@ -183,4 +183,6 @@ def create_app(database_url=None, user_key=None, operator_key=None):
         with db.connect() as c:
             return [dict(r) for r in db.run(c, 'SELECT * FROM traces LIMIT 100').fetchall()]
 
+    from rag import install_routes
+    install_routes(app, knowledge, rag_embedder, rag_generator)
     return app

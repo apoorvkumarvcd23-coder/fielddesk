@@ -44,6 +44,9 @@ class HashEmbedder:
     def embed(self, texts):
         return [embedding(text) for text in texts]
 
+    def embed_query(self, text):
+        return embedding(text)
+
 
 def validate_vectors(vectors, expected_count, dimensions):
     if not isinstance(vectors, list) or len(vectors) != expected_count:
@@ -110,3 +113,14 @@ class OllamaEmbedder:
         if self._digest() != self.space.digest:
             raise EmbeddingError('model_changed')
         return vectors
+
+    def embed_query(self, text):
+        if not text.strip() or len(text) > 2000:
+            raise ValueError('Query requires 1–2000 characters')
+        if self._digest() != self.space.digest:
+            raise EmbeddingError('model_changed')
+        vectors = self._embed(['search_query: ' + text])
+        validate_vectors(vectors, 1, self.space.dimensions)
+        if self._digest() != self.space.digest:
+            raise EmbeddingError('model_changed')
+        return vectors[0]

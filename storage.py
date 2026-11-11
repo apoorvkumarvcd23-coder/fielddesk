@@ -103,4 +103,22 @@ def migrations(postgres):
                 UNIQUE(version_id, space_id))''',
             'CREATE INDEX index_jobs_claim_idx ON index_jobs(space_id, status, available_at)',
         ]),
+        (3, [
+            '''CREATE TABLE rag_identities (
+                id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE,
+                role TEXT NOT NULL CHECK(role IN ('user','operator','admin')),
+                token_hash TEXT NOT NULL UNIQUE, enabled INTEGER NOT NULL CHECK(enabled IN (0,1)))''',
+            '''CREATE TABLE document_permissions (
+                document_id TEXT PRIMARY KEY REFERENCES knowledge_documents(id),
+                enabled INTEGER NOT NULL CHECK(enabled IN (0,1)))''',
+            '''CREATE TABLE document_grants (
+                document_id TEXT NOT NULL REFERENCES knowledge_documents(id),
+                identity_id TEXT NOT NULL REFERENCES rag_identities(id),
+                enabled INTEGER NOT NULL CHECK(enabled IN (0,1)),
+                PRIMARY KEY(document_id, identity_id))''',
+            '''CREATE TABLE rag_traces (
+                id TEXT PRIMARY KEY, identity_id TEXT NOT NULL REFERENCES rag_identities(id),
+                space_id TEXT NOT NULL, outcome TEXT NOT NULL,
+                elapsed_ms DOUBLE PRECISION NOT NULL, metadata TEXT NOT NULL)''',
+        ]),
     ]
