@@ -119,13 +119,15 @@ quotes exactly the supporting source span. This is one manually inspected
 synthetic answer, not an accuracy score. Local Docker returned engine errors;
 PostgreSQL evidence must come from the separate actual-model CI run.
 
-CI's actual-model job uses Linux/CPU Ollama 0.17.7, nomic and qwen3.5:9b;
+CI's actual-model job uses Linux/CPU Ollama 0.40.16, nomic and qwen3.5:9b;
 its exact digests/counters are recorded separately in the `actual-pgvector-rag`
 artifact and job log. Do not attribute CPU latency/counters to the local GPU run.
 The 0.6b model failed citation/routing checks; a local 1.7b candidate handed off
 the answerable case. Neither is counted as a passing demonstration. CI therefore
-uses the default 9b model that passed the complete local scenario. The ordinary
-SQLite/PostgreSQL jobs use deterministic adapters. The original
+uses the default 9b model that passed the complete local scenario. The
+local 0.17.7 runtime retains an older installed 9b digest; the current registry
+tag requires a newer runtime, so CI pins 0.40.16 and records its actual digest.
+The ordinary SQLite/PostgreSQL jobs use deterministic adapters. The original
 16-case diagnostic remains exactly unchanged: 9/10 top-1, 4/6 unsupported handoffs,
 18/18 source-matching quotes, three known misses. These are baseline diagnostics.
 

@@ -47,7 +47,7 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements-dev.txt
       - name: Start loopback-only local CPU Ollama
-        run: docker run --rm -d --name fielddesk-ollama -p 127.0.0.1:11434:11434 ollama/ollama:0.17.7
+        run: docker run --rm -d --name fielddesk-ollama -p 127.0.0.1:11434:11434 ollama/ollama:0.40.16
       - name: Wait for Ollama
         run: |
           for i in $(seq 1 60); do
