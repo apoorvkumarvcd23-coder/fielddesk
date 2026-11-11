@@ -1,5 +1,7 @@
 """Bounded structured local generation; no tool or action execution capability."""
 import json
+import copy
+import re
 import threading
 
 from embeddings import EmbeddingError, OllamaEmbedder
@@ -17,6 +19,30 @@ SCHEMA = {
     },
     'required': ['handoff', 'answer', 'citations'],
 }
+
+
+def citation_schema(evidence):
+    """Constrain copying to this request's actual IDs and exact source spans.
+
+    Server-side validation and the final permission check remain authoritative.
+    The grammar is guidance, not a substitute for semantic grounding review.
+    """
+    schema = copy.deepcopy(SCHEMA)
+    choices = []
+    for row in evidence:
+        spans = [row['text'], *re.split(r'(?<=[.!?])\s+', row['text'])]
+        quotes = sorted({span.strip() for span in spans if 12 <= len(span.strip()) <= 600})
+        if quotes:
+            choices.append({
+                'type': 'object', 'additionalProperties': False,
+                'properties': {'chunk_id': {'type': 'string', 'enum': [row['id']]},
+                               'quote': {'type': 'string', 'enum': quotes}},
+                'required': ['chunk_id', 'quote'],
+            })
+    if not choices:
+        raise EmbeddingError('invalid_citations')
+    schema['properties']['citations']['items'] = {'anyOf': choices}
+    return schema
 
 
 class OllamaGenerator(OllamaEmbedder):
@@ -51,7 +77,7 @@ class OllamaGenerator(OllamaEmbedder):
             if len(prompt.encode('utf-8')) > 2800:
                 raise EmbeddingError('prompt_budget')
             result = self._request('/api/generate', {
-                'model': self.model, 'prompt': prompt, 'format': SCHEMA, 'stream': False,
+                'model': self.model, 'prompt': prompt, 'format': citation_schema(evidence), 'stream': False,
                 'think': False, 'keep_alive': 0,
                 'options': {'temperature': 0, 'seed': 7, 'num_ctx': 4096, 'num_predict': 400},
             })

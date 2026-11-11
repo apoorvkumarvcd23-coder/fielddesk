@@ -78,7 +78,10 @@ No model tools/actions are registered. Document text is marked untrusted data.
 
 Structured output must include an answer and 1–3 unique supplied chunk IDs with
 exact contiguous quotes, each 12–600 characters. Quote offsets are source Unicode
-character positions. Invalid IDs/quotes, changed access/version, malformed/truncated
+character positions. A request-specific JSON grammar permits only supplied IDs
+and exact source sentences/full chunks, reducing copying errors in small models.
+The server still independently validates every returned ID, quote and grant.
+Invalid IDs/quotes, changed access/version, malformed/truncated
 output, model change, timeout/outage or no supported evidence return a generic
 handoff without draft text/citations. Exact quote matching proves source membership;
 it does **not** prove every generated statement is semantically supported. Review
