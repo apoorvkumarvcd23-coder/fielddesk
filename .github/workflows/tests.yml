@@ -55,12 +55,12 @@ jobs:
             sleep 1
           done
           exit 1
-      - name: Fetch public embedding and small CPU generation models
+      - name: Fetch public embedding and verified generation models
         run: |
           docker exec fielddesk-ollama ollama pull nomic-embed-text:v1.5
-          docker exec fielddesk-ollama ollama pull qwen3:0.6b
+          docker exec fielddesk-ollama ollama pull qwen3.5:9b
       - name: Actual learned pgvector retrieval and structured cited generation
-        run: python demo_rag.py --postgres --generation-model qwen3:0.6b --output artifacts/actual-pgvector-rag.json
+        run: python demo_rag.py --postgres --generation-model qwen3.5:9b --output artifacts/actual-pgvector-rag.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

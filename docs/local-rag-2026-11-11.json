@@ -42,18 +42,18 @@
         ],
         "handoff": false,
         "reason": "answered",
-        "trace_id": "4eb96e68-3e5e-4db3-a77a-f3591a822cc6",
+        "trace_id": "a0d5b105-dea8-467a-acb8-9d1fe97048af",
         "mode": "local-model-rag",
         "storage": "sqlite-exact-scan"
       },
-      "elapsed_ms": 21125.327899993863,
+      "elapsed_ms": 21717.944099975284,
       "metadata": {
         "model": "qwen3.5:9b",
         "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
         "prompt_eval_count": 257,
         "eval_count": 141,
-        "total_duration": 21007108000,
-        "load_duration": 8920572100,
+        "total_duration": 21538757900,
+        "load_duration": 9360705200,
         "chunk_ids": [
           "1fd27eb14719c2b885c46cbccc0859c301b98d6c939bfafd037cb5ce7d912318"
         ]
@@ -67,18 +67,18 @@
         "citations": [],
         "handoff": true,
         "reason": "unsupported",
-        "trace_id": "79a9b8e3-bb06-4cc4-aea8-21211eed2366",
+        "trace_id": "ec124fd3-1a49-4526-a122-357109ddf077",
         "mode": "local-model-rag",
         "storage": "sqlite-exact-scan"
       },
-      "elapsed_ms": 13384.704000025522,
+      "elapsed_ms": 13900.2416000003,
       "metadata": {
         "model": "qwen3.5:9b",
         "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
         "prompt_eval_count": 256,
         "eval_count": 17,
-        "total_duration": 11085270800,
-        "load_duration": 8942738900,
+        "total_duration": 11316839100,
+        "load_duration": 9217070300,
         "chunk_ids": []
       }
     },
@@ -90,18 +90,18 @@
         "citations": [],
         "handoff": true,
         "reason": "unsupported",
-        "trace_id": "7d71179f-c2bc-4614-ba89-506ecaf7e0db",
+        "trace_id": "193cc33e-0b98-4545-be97-d35a47f5c1ab",
         "mode": "local-model-rag",
         "storage": "sqlite-exact-scan"
       },
-      "elapsed_ms": 13243.537300033495,
+      "elapsed_ms": 14108.992200053763,
       "metadata": {
         "model": "qwen3.5:9b",
         "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
         "prompt_eval_count": 255,
         "eval_count": 17,
-        "total_duration": 10927239700,
-        "load_duration": 8898438000,
+        "total_duration": 11379154100,
+        "load_duration": 9114068700,
         "chunk_ids": []
       }
     },
@@ -113,11 +113,11 @@
         "citations": [],
         "handoff": true,
         "reason": "model_unavailable",
-        "trace_id": "95dc296d-ff40-47d9-a50b-d48fb11e8a05",
+        "trace_id": "0e9277d6-8b6f-4ee0-97b2-2a060185c506",
         "mode": "local-model-rag",
         "storage": "sqlite-exact-scan"
       },
-      "elapsed_ms": 4499.665200011805,
+      "elapsed_ms": 4383.501700009219,
       "metadata": {
         "chunk_ids": []
       }
@@ -130,11 +130,11 @@
         "citations": [],
         "handoff": true,
         "reason": "model_unavailable",
-        "trace_id": "6ced69d1-aa77-431e-883f-58f242b812c2",
+        "trace_id": "aad83c6b-06ce-4488-a11a-f0231204f891",
         "mode": "local-model-rag",
         "storage": "sqlite-exact-scan"
       },
-      "elapsed_ms": 123.54649999178946,
+      "elapsed_ms": 77.7479000389576,
       "metadata": {
         "chunk_ids": []
       }
@@ -147,11 +147,11 @@
         "citations": [],
         "handoff": true,
         "reason": "unsupported",
-        "trace_id": "442444df-fe6f-4b06-ab01-9a4f6fe1a05e",
+        "trace_id": "ad19dbef-6d03-4808-a218-7cc02dd08e7e",
         "mode": "local-model-rag",
         "storage": "sqlite-exact-scan"
       },
-      "elapsed_ms": 76.67510001920164,
+      "elapsed_ms": 78.07109999703243,
       "metadata": {
         "chunk_ids": []
       }

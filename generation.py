@@ -42,7 +42,16 @@ def citation_schema(evidence):
     if not choices:
         raise EmbeddingError('invalid_citations')
     schema['properties']['citations']['items'] = {'anyOf': choices}
-    return schema
+    schema['properties']['handoff']['enum'] = [False]
+    schema['properties']['answer']['minLength'] = 1
+    schema['properties']['citations']['minItems'] = 1
+    handoff = copy.deepcopy(SCHEMA)
+    handoff['properties']['handoff']['enum'] = [True]
+    handoff['properties']['answer']['enum'] = ['']
+    handoff['properties']['citations']['maxItems'] = 0
+    # A small model previously emitted handoff=false with no citations. Encode
+    # the two valid outcomes in the grammar, while still rejecting violations.
+    return {'anyOf': [schema, handoff]}
 
 
 class OllamaGenerator(OllamaEmbedder):

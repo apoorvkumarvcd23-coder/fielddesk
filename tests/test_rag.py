@@ -191,7 +191,12 @@ def test_query_prefix_and_generation_transport_budgets(monkeypatch):
     payload = calls[-2][1]
     assert payload['stream'] is False and payload['think'] is False
     assert payload['options']['num_ctx'] == 4096 and payload['options']['num_predict'] == 400
-    variants = payload['format']['properties']['citations']['items']['anyOf']
+    answered, handoff = payload['format']['anyOf']
+    variants = answered['properties']['citations']['items']['anyOf']
+    assert answered['properties']['citations']['minItems'] == 1
+    assert answered['properties']['handoff']['enum'] == [False]
+    assert handoff['properties']['handoff']['enum'] == [True]
+    assert handoff['properties']['citations']['maxItems'] == 0
     assert variants[0]['properties']['chunk_id']['enum'] == ['chunk']
     assert variants[0]['properties']['quote']['enum'] == ['Synthetic repair note.']
     with pytest.raises(ValueError):
@@ -229,7 +234,7 @@ def test_citation_grammar_contains_only_exact_request_evidence_without_mutating_
     evidence = [{'id':'allowed-1','text':'Room café instructions. Record the fault description.'},
                 {'id':'allowed-2','text':'Another approved source span.'}]
     schema = citation_schema(evidence)
-    for variant, row in zip(schema['properties']['citations']['items']['anyOf'], evidence):
+    for variant, row in zip(schema['anyOf'][0]['properties']['citations']['items']['anyOf'], evidence):
         assert variant['properties']['chunk_id']['enum'] == [row['id']]
         assert all(quote in row['text'] for quote in variant['properties']['quote']['enum'])
     assert 'allowed-1' not in json.dumps(citation_schema([evidence[1]]))

@@ -81,6 +81,9 @@ exact contiguous quotes, each 12–600 characters. Quote offsets are source Unic
 character positions. A request-specific JSON grammar permits only supplied IDs
 and exact source sentences/full chunks, reducing copying errors in small models.
 The server still independently validates every returned ID, quote and grant.
+The grammar permits two outcomes: an answer with at least one citation, or an
+empty handoff. This prevents a small model's observed `handoff=false`/empty-citation
+combination without changing the service's fail-closed validation rules.
 Invalid IDs/quotes, changed access/version, malformed/truncated
 output, model change, timeout/outage or no supported evidence return a generic
 handoff without draft text/citations. Exact quote matching proves source membership;
@@ -116,10 +119,13 @@ quotes exactly the supporting source span. This is one manually inspected
 synthetic answer, not an accuracy score. Local Docker returned engine errors;
 PostgreSQL evidence must come from the separate actual-model CI run.
 
-CI's actual-model job uses Linux/CPU Ollama 0.17.7, nomic and smaller qwen3:0.6b;
+CI's actual-model job uses Linux/CPU Ollama 0.17.7, nomic and qwen3.5:9b;
 its exact digests/counters are recorded separately in the `actual-pgvector-rag`
-artifact and job log. Do not attribute that CPU result to the local 9b/GPU model.
-The ordinary SQLite/PostgreSQL jobs use deterministic adapters. The original
+artifact and job log. Do not attribute CPU latency/counters to the local GPU run.
+The 0.6b model failed citation/routing checks; a local 1.7b candidate handed off
+the answerable case. Neither is counted as a passing demonstration. CI therefore
+uses the default 9b model that passed the complete local scenario. The ordinary
+SQLite/PostgreSQL jobs use deterministic adapters. The original
 16-case diagnostic remains exactly unchanged: 9/10 top-1, 4/6 unsupported handoffs,
 18/18 source-matching quotes, three known misses. These are baseline diagnostics.
 

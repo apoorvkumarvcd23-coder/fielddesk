@@ -15,9 +15,10 @@ offsets and current grants/versions are checked before returning an answer.
 The actual local qwen3.5:9b demonstration answers, hands off unsupported questions,
 denies restricted sources and handles model outage/timeout. See the
 [RAG setup and API runbook](docs/RAG_RUNBOOK.md) and
-[actual local evidence](docs/local-rag-2026-11-11.json). The new actual-model CI job
-checks learned pgvector retrieval separately on Linux/CPU; its result must pass
-before the PostgreSQL RAG gate is considered complete.
+[actual local evidence](docs/local-rag-2026-11-11.json). The separate actual-model CI
+job checks learned pgvector retrieval on Linux/CPU and publishes its exact model,
+digest and counter report. Check the [latest workflow result](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml)
+for PostgreSQL model verification; final core acceptance also needs CORE08.
 
 **CORE02 delivered:** versioned knowledge, exact source-offset chunks, durable
 indexing jobs and a separate local-model embedding path. A real PostgreSQL/

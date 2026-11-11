@@ -26,7 +26,7 @@ core/release tag is earned by these slices.
 | Actual learned model answers and fails closed on unsupported/outage/timeout | `demo_rag.py` | `local-rag-2026-11-11.json`: actual nomic/qwen3.5 inference on SQLite, explicitly not pgvector |
 
 Deterministic CI checks both SQLite and real PostgreSQL. The separate
-`actual-model-rag` CI job downloads public nomic/qwen3:0.6b models and runs
+`actual-model-rag` CI job downloads public nomic/qwen3.5:9b models and runs
 `demo_rag.py --postgres`; only a successful job/report proves that particular
 Linux/CPU pgvector model integration. The local qwen3.5:9b report proves actual
 inference with SQLite and must not be relabelled as PostgreSQL evidence.
@@ -35,12 +35,13 @@ grounding, throughput, production scale or customer use.
 
 ## Remaining core gates
 
-- Verify the new actual-model pgvector CI job/report; local Docker could not start
-  during the 11 November run. Do not treat the SQLite run as PostgreSQL evidence.
 - Operator ingest/job/review interface, unanswered review queue and complete
   approved-ticket end-to-end scenario.
 - Full clean-clone app/worker/model setup, screenshots and complete core acceptance.
 
 The new identity/document matrix is separate from legacy shared-key route denials.
+Use the [latest CI result and actual-model artifact](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml)
+for PostgreSQL verification; a failed run leaves that gate open. Local Docker
+could not start on 11 November; the SQLite report is not PostgreSQL evidence.
 The generation readiness probe alone does not prove a cited RAG answer. See the
 implementation plan for the later core and December evaluation/release gates.
