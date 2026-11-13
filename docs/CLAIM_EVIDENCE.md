@@ -44,9 +44,15 @@ grounding, throughput, production scale or customer use.
 | Opt-in owned handoff review, hash binding and bounded queue | reviews.py, migration 4 | Consent/mismatch/owner/answered-trace/quota regressions |
 | Claim/revision/assignment/resolve and expiry/withdrawal | ReviewStore | Stale editor, wrong operator, expiry/redaction and repeat-safe tests |
 | Human proposal/approval shares existing ticket workflow with identity scope | rag_ticket_links, ReviewStore.approve | Concurrent approval, self/foreign-owner/legacy denial and atomic rollback tests |
-| Actual learned UI → handoff → approved ticket survives app restart | demo_workflow.py, browser/workflow.mjs | Actual-model browser JSON/PNG and exact before/after state comparison; storage explicitly labelled |
+| Actual learned UI → handoff → approved ticket persists across app-instance recreation | demo_workflow.py, browser/workflow.mjs | Fresh FastAPI instance/listener in the same process; exact database/HTTP state comparison, distinct from the worker-process crash drill |
 
 See [operator contracts and reproducible verification](OPERATOR_WORKFLOW.md).
+
+Recorded 14 November: [permanent native and Linux/pgvector report](operator-workflow-2026-11-14.json)
+and [successful source CI](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/runs/43497338540).
+All 61 tests pass on each backend; actual nomic/Qwen inference, learned worker
+process crash/replacement and Chromium ingest/answer/handoff/review/approval
+pass on real pgvector. Native screenshots are explicitly Windows/SQLite.
 
 The new identity/document matrix is separate from legacy shared-key route denials.
 Use the [latest CI result and actual-model artifact](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml)

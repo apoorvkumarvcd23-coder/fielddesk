@@ -111,6 +111,38 @@ proposals cannot reserve the identity workflow's server-owned request-key namesp
 
 ## Reproducible evidence
 
+### Recorded native demonstration — 14 November 2026
+
+The [recorded report](operator-workflow-2026-11-14.json) contains actual
+Windows/SQLite model and browser results, model digests, a separately verified
+worker-process crash/replacement and hashes of these inspected screenshots:
+
+| Actual synthetic workflow | Screenshot |
+| --- | --- |
+| Admin ingest, granted readers and READY index job | [Desktop](evidence/2026-11-14/indexing-admin.png), [mobile](evidence/2026-11-14/indexing-mobile.png) |
+| Learned answer and exact permitted source | [Cited answer](evidence/2026-11-14/cited-answer.png) |
+| Claimed review and human-approved ticket | [Approved review](evidence/2026-11-14/approved-review.png) |
+| Failed local generation endpoint hands off without citations | [Model outage](evidence/2026-11-14/model-outage.png) |
+
+The inspected answer correctly names room code and fault description, supported
+by the source sentence at offsets 52–144. This is one synthetic demonstration,
+not a held-out quality score. The report labels native SQLite separately from
+Linux/PostgreSQL verification. App-instance recreation uses the same demo
+process; the indexing drill independently crashes and replaces a worker process.
+
+The [clean Linux CI run](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/runs/43497338540)
+at source `5075d76fb0ad2fabc569f18f80d456408e0e221f` passed all 61 tests on
+each of SQLite and PostgreSQL/pgvector, actual nomic/Qwen cited RAG, learned
+worker crash/replacement/replay and the complete Chromium workflow on pgvector.
+The permanent report embeds those CI JSON results; the
+[original artifact](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/runs/43497338540/artifacts/14073416026)
+also contains the separate Linux screenshots and sanitized logs. The freshly
+fetched CI Qwen digest differs from the installed native model; both actual
+digests are recorded. These small fixtures establish this integration, not
+general answer quality, production capacity or final release acceptance.
+
+### Run it from a clean checkout
+
 Install the browser-only verifier and run the isolated demo:
 
 ```sh
