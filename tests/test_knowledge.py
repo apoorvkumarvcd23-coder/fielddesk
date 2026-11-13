@@ -25,7 +25,7 @@ def store(tmp_path):
     db.initialize()
     if db.postgres:
         with db.connect() as conn:
-            conn.execute('TRUNCATE rag_traces,document_grants,document_permissions,rag_identities,index_jobs,chunk_embeddings,document_chunks,index_targets,document_versions,knowledge_documents,embedding_spaces')
+            conn.execute('TRUNCATE rag_traces,document_grants,document_permissions,rag_identities,index_jobs,chunk_embeddings,document_chunks,index_targets,document_versions,knowledge_documents,embedding_spaces CASCADE')
     clock = [100.0]
     result = KnowledgeStore(db, clock=lambda: clock[0])
     result.test_clock = clock
@@ -253,7 +253,7 @@ def test_adopts_legacy_unversioned_database_without_losing_existing_rows(tmp_pat
     with db.connect() as conn:
         assert conn.execute('SELECT body FROM documents').fetchone()['body'] == 'Old body'
         assert conn.execute('SELECT title FROM tickets').fetchone()['title'] == 'Approved before upgrade'
-        assert conn.execute('SELECT count(*) FROM schema_migrations').fetchone()[0] == 3
+        assert conn.execute('SELECT count(*) FROM schema_migrations').fetchone()[0] == 4
         conn.execute("UPDATE schema_migrations SET checksum='tampered' WHERE version=2")
     with pytest.raises(RuntimeError, match='checksum mismatch'):
         db.initialize()
@@ -264,14 +264,14 @@ def test_migration_initialization_serializes_concurrent_startups(tmp_path):
     with ThreadPoolExecutor(max_workers=3) as pool:
         list(pool.map(lambda _: Database(path).initialize(), range(3)))
     with Database(path).connect() as conn:
-        assert conn.execute('SELECT count(*) FROM schema_migrations').fetchone()[0] == 3
+        assert conn.execute('SELECT count(*) FROM schema_migrations').fetchone()[0] == 4
 
 
 def test_legacy_upgrade_preserves_documents_and_tickets_on_selected_backend(store):
     # The fixture owns a disposable *_test DB. Remove only the new schema to
     # reproduce the previously unversioned four-table application layout.
     with store.db.connect() as conn:
-        for table in ['rag_traces', 'document_grants', 'document_permissions', 'rag_identities',
+        for table in ['rag_ticket_links','rag_review_events','rag_reviews','rag_traces', 'document_grants', 'document_permissions', 'rag_identities',
                       'index_jobs', 'chunk_embeddings', 'document_chunks', 'index_targets',
                       'document_versions', 'knowledge_documents', 'embedding_spaces', 'schema_migrations']:
             conn.execute('DROP TABLE ' + table)

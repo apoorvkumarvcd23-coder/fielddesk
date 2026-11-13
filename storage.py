@@ -121,4 +121,23 @@ def migrations(postgres):
                 space_id TEXT NOT NULL, outcome TEXT NOT NULL,
                 elapsed_ms DOUBLE PRECISION NOT NULL, metadata TEXT NOT NULL)''',
         ]),
+        (4, [
+            '''CREATE TABLE rag_reviews (
+                id TEXT PRIMARY KEY, trace_id TEXT NOT NULL UNIQUE REFERENCES rag_traces(id),
+                requester_id TEXT NOT NULL REFERENCES rag_identities(id), question TEXT NOT NULL,
+                state TEXT NOT NULL CHECK(state IN ('open','in_review','resolved')),
+                revision INTEGER NOT NULL DEFAULT 0, assigned_to TEXT REFERENCES rag_identities(id),
+                resolution TEXT NOT NULL DEFAULT '', created_at DOUBLE PRECISION NOT NULL,
+                expires_at DOUBLE PRECISION NOT NULL, deleted_at DOUBLE PRECISION)''',
+            '''CREATE TABLE rag_ticket_links (
+                action_id TEXT PRIMARY KEY REFERENCES actions(id),
+                review_id TEXT NOT NULL UNIQUE REFERENCES rag_reviews(id),
+                requester_id TEXT NOT NULL REFERENCES rag_identities(id),
+                approved_by TEXT REFERENCES rag_identities(id))''',
+            '''CREATE TABLE rag_review_events (
+                id TEXT PRIMARY KEY, review_id TEXT NOT NULL REFERENCES rag_reviews(id),
+                actor_id TEXT NOT NULL REFERENCES rag_identities(id),
+                event TEXT NOT NULL, created_at DOUBLE PRECISION NOT NULL)''',
+            'CREATE INDEX rag_reviews_queue_idx ON rag_reviews(state,expires_at,created_at)',
+        ]),
     ]

@@ -1,15 +1,42 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FieldDesk</title>
-<style>body{font:16px system-ui;max-width:850px;margin:40px auto;padding:20px;background:#f5f7fa;color:#16263a}section{background:white;padding:24px;border-radius:12px;margin:18px 0}input,textarea,button{font:inherit;padding:10px;margin:5px 0;box-sizing:border-box}input,textarea{width:100%}button{background:#174873;color:white;border:0;border-radius:5px;cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere}small{color:#52657b}</style>
-<h1>FieldDesk</h1><p>Service knowledge with source citations and human-approved requests.</p><small>Local prototype · offline extractive answers · no paid AI calls</small>
-<section><label>Access key <input id="key" type="password" autocomplete="off"></label><small>Use your generated user key. Operator key is required for approvals. Keys stay in this page's memory.</small></section>
-<section><h2>Ask the service desk</h2><textarea id="question" rows="2">How do I request a projector repair?</textarea><button id="ask">Find an answer</button><pre id="answer" role="status"></pre></section>
-<section><h2>Request a service ticket</h2><input id="title" placeholder="Projector in room A is not working"><button id="propose">Propose request</button><pre id="proposal" role="status"></pre></section>
-<section><h2>Operator queue</h2><button id="queue">Load requests</button><div id="actions"></div></section>
-<script>
-async function api(path,body){const r=await fetch(path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','Authorization':'Bearer '+document.getElementById('key').value},...(body?{body:JSON.stringify(body)}:{})});const j=await r.json();if(!r.ok)throw new Error(j.detail||'Request failed');return j}
-function show(id,data){document.getElementById(id).textContent=typeof data==='string'?data:JSON.stringify(data,null,2)}
-document.getElementById('ask').onclick=async()=>{try{show('answer',await api('/chat',{message:document.getElementById('question').value}))}catch(e){show('answer',e.message)}};
-let pendingKey=null,pendingTitle=null;
-document.getElementById('propose').onclick=async()=>{const title=document.getElementById('title').value;if(title!==pendingTitle){pendingKey=crypto.randomUUID();pendingTitle=title}try{show('proposal',await api('/actions',{title,request_key:pendingKey}))}catch(e){show('proposal',e.message)}};
-document.getElementById('queue').onclick=async()=>{const box=document.getElementById('actions');box.replaceChildren();try{for(const a of await api('/actions')){const p=document.createElement('p');p.textContent=a.title+' — '+a.status;box.append(p);if(a.status==='pending'){const b=document.createElement('button');b.textContent='Approve ticket';b.onclick=async()=>{try{p.textContent=JSON.stringify(await api('/actions/'+a.id+'/approve',{}));b.remove()}catch(e){p.textContent=e.message}};box.append(b)}}}catch(e){box.textContent=e.message}};
-</script></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FieldDesk · Service workspace</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#17324a;background:#f1f5f8}*{box-sizing:border-box}body{margin:0}header{background:#143e5c;color:#fff;padding:24px max(6%,calc((100% - 1180px)/2))}header h1{margin:0;font-size:30px}header p{margin:8px 0 0;color:#ccdee9}main{max-width:1180px;margin:auto;padding:26px 5%}section{background:#fff;border:1px solid #d7e3eb;border-radius:12px;padding:24px;margin:18px 0;min-width:0}h2{margin:0 0 16px;font-size:22px}h3{font-size:17px}p,li{line-height:1.6}label{display:block;font-size:14px;margin:14px 0 6px;font-weight:600}input,textarea,select,button{font:inherit;padding:10px;border-radius:6px}input,textarea,select{width:100%;border:1px solid #b4c8d6;background:#fff}textarea{resize:vertical}button{background:#166580;color:#fff;border:0;cursor:pointer;margin:8px 7px 8px 0}button:disabled{opacity:.5;cursor:wait}button.secondary{background:#e9f0f4;color:#17324a}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #ecac43;outline-offset:3px}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.two>section{margin:0}small,.muted{color:#536c80;font-size:13px}.badge{display:inline-block;padding:5px 9px;background:#e3f1ee;border-radius:20px;font-size:12px;color:#215a50}#error{color:#8c302d;background:#fff0ee;border:1px solid #edc8c4;padding:16px;border-radius:8px}#error:empty{display:none}.item{border-top:1px solid #dce6ed;padding:14px 0;overflow-wrap:anywhere}.item:first-child{border:0}.citation{padding:14px;border-left:4px solid #33858e;background:#f0f8f7;margin:12px 0;white-space:pre-wrap}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;font-size:13px}.check{display:flex;align-items:center;gap:10px}.check input{width:18px;height:18px}a{color:#166580}footer{padding:20px 0;color:#607c90;font-size:13px}.status{overflow-wrap:anywhere;padding:12px;background:#edf4f8;border-radius:7px}.status:empty{display:none}[hidden]{display:none!important}@media(max-width:720px){.two{grid-template-columns:1fr}section{padding:18px}main{padding:16px 4%}header{padding:22px 4%}h1{font-size:26px}}
+</style></head><body>
+<header><h1>FieldDesk</h1><p>Permitted answers. Visible handoffs. Human-approved service tickets.</p></header>
+<main>
+<p class="muted">Local demonstration · synthetic fixtures · <a href="/baseline">Original offline extractive demo</a></p>
+<section aria-label="Identity connection"><h2>Your workspace</h2>
+<form id="connect-form"><label for="token">Identity access token</label><input id="token" type="password" autocomplete="off" required maxlength="512"><button id="connect" type="submit">Connect identity</button></form>
+<div id="connected" hidden><p id="identity"></p><button id="disconnect" class="secondary">Disconnect</button><p id="configuration" class="muted"></p></div>
+<p class="muted">Use your locally generated identity token. It stays in this page's memory and is cleared on disconnect. Shared baseline keys do not sign in here.</p></section>
+<p id="error" role="alert"></p>
+<div id="workspace" hidden>
+<div class="two">
+<section aria-label="Ask the service desk"><h2>Ask the service desk</h2>
+<form id="ask-form"><label for="question">Your question</label><textarea id="question" rows="3" required maxlength="2000">What must I record in a projector repair ticket?</textarea><button id="ask" type="submit">Find an answer</button></form>
+<p id="answer-status" role="status" class="status"></p><p id="answer"></p><div id="citations"></div>
+<div id="handoff" hidden><p>No ticket is created automatically. You can share this question for operator review.</p>
+<label class="check"><input id="consent" type="checkbox">Share this question with service operators</label>
+<p class="muted">Opt-in question text is retained for seven days and redacted on the next queue access after expiry. You can withdraw it earlier. Approved ticket records have separate retention.</p>
+<button id="request-review" disabled>Request operator review</button></div></section>
+<section aria-label="Review requests"><div class="row"><h2 id="review-heading">Your review requests</h2><button id="refresh-reviews" class="secondary">Refresh reviews</button></div>
+<p class="muted">Open → in review → resolved. A ticket requires an explicit human proposal and approval.</p><div id="reviews"></div><p id="review-status" role="status" class="status"></p></section>
+</div>
+<div id="operator-tools" hidden>
+<section aria-label="Document indexing"><h2>Document indexing</h2><p>Ingest approved text, then let the separate index worker build its learned index. A pending job is not ready evidence.</p>
+<form id="ingest-form"><label for="source-key">Source key</label><input id="source-key" required maxlength="100" pattern="[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}">
+<label for="doc-title">Document title</label><input id="doc-title" required maxlength="150">
+<label for="doc-body">Approved document text</label><textarea id="doc-body" required rows="5" maxlength="20000"></textarea>
+<label for="space">Learned embedding space</label><select id="space" required></select><button id="ingest" type="submit">Queue document</button></form>
+<p id="ingest-status" role="status" class="status"></p><button id="refresh-jobs" class="secondary">Refresh indexing jobs</button><div id="jobs"></div>
+<p class="muted">New sources grant their ingesting operator read access. Existing sources require an explicit grant to update. User access is granted by an administrator.</p></section>
+</div>
+<section id="admin-tools" aria-label="Document permissions" hidden><h2>Document permissions</h2>
+<form id="grant-form"><label for="grant-document">Document ID</label><input id="grant-document" required maxlength="64">
+<label for="grant-identity">Reader identity</label><select id="grant-identity" required></select>
+<label class="check"><input id="grant-enabled" type="checkbox" checked>Allow this identity to read the document</label><button type="submit">Save document grant</button></form><p id="grant-status" role="status" class="status"></p></section>
+</div>
+<footer>Local-model retrieval and citation checks do not imply general answer accuracy. Review semantic support before relying on an answer.</footer>
+</main><script src="/workspace.js" defer></script></body></html>

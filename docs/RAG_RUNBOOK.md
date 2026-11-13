@@ -1,8 +1,8 @@
 # Identity-scoped local-model RAG API
 
-This is the CORE05 API slice. The existing HTML `/chat` demo remains hash/extractive.
-Operator/review screens and RAG-to-approved-ticket integration follow in CORE08;
-there is no complete-core tag yet. Python 3.12, local Ollama and PostgreSQL 17 with
+This describes the CORE05 API extended by the [CORE08 operator workspace](OPERATOR_WORKFLOW.md).
+The original `/baseline` HTML and `/chat` API remain hash/extractive. Identity-bound
+reviews/tickets use `/rag/*`; there is no complete-core tag yet. Python 3.12, local Ollama and PostgreSQL 17 with
 pgvector are the full demo stack. SQLite exact scan is a labelled fallback.
 
 ## Setup

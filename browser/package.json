@@ -1,0 +1,6 @@
+{
+  "name": "fielddesk-browser-evidence",
+  "private": true,
+  "type": "module",
+  "devDependencies": { "@playwright/test": "1.65.0" }
+}

@@ -47,7 +47,7 @@ class KnowledgeStore:
         with self.db.connect() as conn:
             return [dict(row) for row in self.db.run(conn, 'SELECT * FROM embedding_spaces ORDER BY id').fetchall()]
 
-    def ingest(self, source_key, title, body, space_id=None):
+    def ingest(self, source_key, title, body, space_id=None, actor_id=None, legacy_api=False):
         if not body.strip() or len(body) > 20000 or not title.strip() or len(title) > 150 or '\0' in body or '\0' in title:
             raise ValueError('Invalid knowledge text')
         space_id = space_id or self.register_space(HashEmbedder.space)
@@ -60,11 +60,28 @@ class KnowledgeStore:
             space = self.db.run(conn, 'SELECT * FROM embedding_spaces WHERE id=?', (space_id,)).fetchone()
             if not space or space['chunking_version'] != CHUNKING_VERSION:
                 raise ValueError('Unknown embedding space; register it with the worker first')
-            self.db.run(conn, 'INSERT INTO knowledge_documents VALUES (?,?,?) ON CONFLICT(id) DO NOTHING',
-                        (document_id, source_key, now))
+            if actor_id:
+                suffix = ' FOR UPDATE' if self.db.postgres else ''
+                actor = self.db.run(conn, 'SELECT role,enabled FROM rag_identities WHERE id=?' + suffix, (actor_id,)).fetchone()
+                if not actor or not actor['enabled'] or actor['role'] not in {'operator','admin'}:
+                    raise PermissionError('Enabled operator required')
+            created = self.db.run(conn, 'INSERT INTO knowledge_documents VALUES (?,?,?) ON CONFLICT(id) DO NOTHING',
+                        (document_id, source_key, now)).rowcount
             # Serialize different version submissions for the same source on PostgreSQL.
             suffix = ' FOR UPDATE' if self.db.postgres else ''
             self.db.run(conn, 'SELECT id FROM knowledge_documents WHERE id=?' + suffix, (document_id,)).fetchone()
+            if legacy_api and self.db.run(conn, 'SELECT document_id FROM document_permissions WHERE document_id=?', (document_id,)).fetchone():
+                raise PermissionError('Identity-managed sources require identity authorization')
+            if actor_id:
+                if created:
+                    self.db.run(conn, 'INSERT INTO document_permissions VALUES (?,1)', (document_id,))
+                    self.db.run(conn, 'INSERT INTO document_grants VALUES (?,?,1)', (document_id, actor_id))
+                else:
+                    suffix = ' FOR SHARE OF g,p' if self.db.postgres else ''
+                    allowed = self.db.run(conn, '''SELECT g.enabled FROM document_grants g JOIN document_permissions p ON p.document_id=g.document_id
+                        WHERE g.document_id=? AND g.identity_id=? AND g.enabled=1 AND p.enabled=1''' + suffix, (document_id, actor_id)).fetchone()
+                    if not allowed:
+                        raise PermissionError('Source access not granted')
             inserted = self.db.run(conn, '''INSERT INTO document_versions VALUES (?,?,?,?,?,?,?)
                 ON CONFLICT(id) DO NOTHING''',
                 (version_id, document_id, title, body, content_hash, CHUNKING_VERSION, now)).rowcount

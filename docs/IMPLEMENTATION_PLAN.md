@@ -13,6 +13,16 @@ acceptance is 17 November; mocked inference alone does not satisfy it.
 
 ## Source-grounded starting point
 
+### Implemented operator slice — 14 November 2026
+
+The root vanilla HTML/JS workspace now connects identity-scoped document ingest,
+learned index jobs, source-checked answers, opt-in durable review and explicitly
+human-approved tickets. Existing offline UI/API and the 16-case diagnostic remain
+separate. See [workflow contracts and run instructions](OPERATOR_WORKFLOW.md) and
+the [claim ledger](CLAIM_EVIDENCE.md). Final core acceptance remains 17 November;
+the 40-case held-out evaluation and broader hardening are December gates. The
+following starting-point review is historical, not current implementation status.
+
 Reviewed main `52824bb4892e5fe690db34d1b0de06e953f96c51`: `app.py`, settings,
 management/seed commands, interface, Compose, test/CI definitions and evaluation.
 The current app uses shared user/operator keys, deterministic 256-dimensional

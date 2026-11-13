@@ -1,7 +1,7 @@
 # Claim-to-code/test ledger
 
-CORE02 indexing and the CORE05 identity/RAG API slice are implemented. Final
-FieldDesk core acceptance still requires the operator/review workflow. No
+CORE02 indexing, CORE05 identity/RAG and CORE08 operator workflows are implemented.
+Final FieldDesk core acceptance remains the 17 November evidence audit. No
 core/release tag is earned by these slices.
 
 | Implemented behavior | Code | Evidence |
@@ -35,9 +35,18 @@ grounding, throughput, production scale or customer use.
 
 ## Remaining core gates
 
-- Operator ingest/job/review interface, unanswered review queue and complete
-  approved-ticket end-to-end scenario.
 - Full clean-clone app/worker/model setup, screenshots and complete core acceptance.
+
+| CORE08 behavior | Code | Executable evidence |
+| --- | --- | --- |
+| Identity-scoped vanilla UI, safe text rendering and private-state disconnect | index.html, workspace.js | browser/workflow.mjs real UI/model scenario |
+| Atomic new-source grant/ingest, existing-source permission check and scoped job lists | knowledge.py, rag.py | test_identity_ingest_is_atomic_granted_and_cannot_replace_another_source |
+| Opt-in owned handoff review, hash binding and bounded queue | reviews.py, migration 4 | Consent/mismatch/owner/answered-trace/quota regressions |
+| Claim/revision/assignment/resolve and expiry/withdrawal | ReviewStore | Stale editor, wrong operator, expiry/redaction and repeat-safe tests |
+| Human proposal/approval shares existing ticket workflow with identity scope | rag_ticket_links, ReviewStore.approve | Concurrent approval, self/foreign-owner/legacy denial and atomic rollback tests |
+| Actual learned UI → handoff → approved ticket survives app restart | demo_workflow.py, browser/workflow.mjs | Actual-model browser JSON/PNG and exact before/after state comparison; storage explicitly labelled |
+
+See [operator contracts and reproducible verification](OPERATOR_WORKFLOW.md).
 
 The new identity/document matrix is separate from legacy shared-key route denials.
 Use the [latest CI result and actual-model artifact](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml)

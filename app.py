@@ -73,6 +73,14 @@ def create_app(database_url=None, user_key=None, operator_key=None, rag_embedder
     def index():
         return FileResponse(Path(__file__).parent / 'index.html')
 
+    @app.get('/baseline', include_in_schema=False)
+    def baseline():
+        return FileResponse(Path(__file__).parent / 'baseline.html')
+
+    @app.get('/workspace.js', include_in_schema=False)
+    def workspace_script():
+        return FileResponse(Path(__file__).parent / 'workspace.js', media_type='text/javascript')
+
     @app.get('/health')
     def health():
         return {'status': 'ok', 'storage': 'pgvector' if db.postgres else 'sqlite-vector-baseline'}
@@ -84,7 +92,9 @@ def create_app(database_url=None, user_key=None, operator_key=None, rag_embedder
     @app.post('/knowledge/documents', dependencies=[Depends(operator)], status_code=202)
     def ingest_knowledge(doc: KnowledgeDocument):
         try:
-            return knowledge.ingest(doc.source_key, doc.title, doc.body, doc.space_id)
+            return knowledge.ingest(doc.source_key, doc.title, doc.body, doc.space_id, legacy_api=True)
+        except PermissionError as failure:
+            raise HTTPException(403, str(failure)) from None
         except ValueError as failure:
             raise HTTPException(422, str(failure)) from None
 
@@ -141,10 +151,14 @@ def create_app(database_url=None, user_key=None, operator_key=None, rag_embedder
 
     @app.post('/actions', dependencies=[Depends(identity)], status_code=201)
     def propose(request: Action):
+        if request.request_key.startswith('rag-review:'):
+            raise HTTPException(409, 'Request key namespace is reserved')
         with db.connect() as c:
             db.run(c, 'INSERT INTO actions VALUES (?,?,?,?,?,?) ON CONFLICT(request_key) DO NOTHING',
                    (str(uuid4()), request.request_key, request.title, 'pending', time.time(), None))
             row = dict(db.run(c, 'SELECT * FROM actions WHERE request_key=?', (request.request_key,)).fetchone())
+            if db.run(c, 'SELECT action_id FROM rag_ticket_links WHERE action_id=?', (row['id'],)).fetchone():
+                raise HTTPException(409, 'Request key is unavailable')
             if row['title'] != request.title:
                 raise HTTPException(409, 'Idempotency key already used for another request')
             return row
@@ -152,13 +166,15 @@ def create_app(database_url=None, user_key=None, operator_key=None, rag_embedder
     @app.get('/actions', dependencies=[Depends(operator)])
     def actions():
         with db.connect() as c:
-            return [dict(r) for r in db.run(c, 'SELECT * FROM actions ORDER BY created_at DESC LIMIT 50').fetchall()]
+            return [dict(r) for r in db.run(c, 'SELECT * FROM actions WHERE id NOT IN (SELECT action_id FROM rag_ticket_links) ORDER BY created_at DESC LIMIT 50').fetchall()]
 
     @app.post('/actions/{action_id}/approve', dependencies=[Depends(operator)])
     def approve(action_id: str):
         with db.connect() as c:
             suffix = ' FOR UPDATE' if db.postgres else ''
             row = db.run(c, 'SELECT * FROM actions WHERE id=?' + suffix, (action_id,)).fetchone()
+            if db.run(c, 'SELECT action_id FROM rag_ticket_links WHERE action_id=?', (action_id,)).fetchone():
+                raise HTTPException(404, 'Unknown action')
             if not row:
                 raise HTTPException(404, 'Unknown action')
             if row['status'] == 'approved':
@@ -174,6 +190,8 @@ def create_app(database_url=None, user_key=None, operator_key=None, rag_embedder
     def ticket(ticket_id: str):
         with db.connect() as c:
             row = db.run(c, 'SELECT * FROM tickets WHERE id=?', (ticket_id,)).fetchone()
+            if db.run(c, 'SELECT l.action_id FROM rag_ticket_links l JOIN actions a ON a.id=l.action_id WHERE a.ticket_id=?', (ticket_id,)).fetchone():
+                raise HTTPException(404, 'Unknown ticket')
             if not row:
                 raise HTTPException(404, 'Unknown ticket')
             return dict(row)

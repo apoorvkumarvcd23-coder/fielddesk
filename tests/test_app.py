@@ -15,7 +15,9 @@ def client(tmp_path):
     # Integration database must be a disposable test service, not a personal DB.
     if app.state.db.postgres:
         with app.state.db.connect() as c:
-            c.execute('TRUNCATE documents,actions,tickets,traces')
+            from psycopg.conninfo import conninfo_to_dict
+            assert conninfo_to_dict(url)['dbname'].endswith('_test')
+            c.execute('TRUNCATE documents,actions,tickets,traces CASCADE')
     with TestClient(app) as c:
         yield c
 

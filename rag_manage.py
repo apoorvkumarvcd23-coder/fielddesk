@@ -15,11 +15,15 @@ from storage import Database
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['identities', 'seed'])
+    parser.add_argument('command', choices=['identities', 'seed', 'purge-reviews'])
     args = parser.parse_args()
     load_env()
     db = Database(os.getenv('DATABASE_URL', 'fielddesk.db'))
     db.initialize()
+    if args.command == 'purge-reviews':
+        from reviews import ReviewStore
+        print(json.dumps({'redacted_expired_reviews': ReviewStore(db).purge()}))
+        return
     credentials = Path('credentials.json')
     if args.command == 'identities':
         roles = dict([

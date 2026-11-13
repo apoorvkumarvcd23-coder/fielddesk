@@ -42,7 +42,7 @@ def rig(tmp_path):
     db.initialize()
     if db.postgres:
         with db.connect() as conn:
-            conn.execute('TRUNCATE rag_traces,document_grants,document_permissions,rag_identities,index_jobs,chunk_embeddings,document_chunks,index_targets,document_versions,knowledge_documents,embedding_spaces')
+            conn.execute('TRUNCATE rag_traces,document_grants,document_permissions,rag_identities,index_jobs,chunk_embeddings,document_chunks,index_targets,document_versions,knowledge_documents,embedding_spaces CASCADE')
     generator = FakeGenerator()
     app = create_app(url, 'fixture-user', 'fixture-operator', HashEmbedder(), generator)
     store = app.state.knowledge

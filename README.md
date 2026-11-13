@@ -18,15 +18,21 @@ denies restricted sources and handles model outage/timeout. See the
 [actual local evidence](docs/local-rag-2026-11-11.json). The separate actual-model CI
 job checks learned pgvector retrieval on Linux/CPU and publishes its exact model,
 digest and counter report. Check the [latest workflow result](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml)
-for PostgreSQL model verification; final core acceptance also needs CORE08.
+for PostgreSQL model verification; final core acceptance remains 17 November.
+
+**CORE08 operator workflow:** the root interface now supports identity sign-in,
+approved-text ingest/job status, permitted cited answers, explicit opt-in handoff
+review, operator claim/resolution and human-proposed/approved tickets. Review
+ownership, revisions, expiry/redaction and identity-bound ticket reads are tested.
+See [interactive setup and clean isolated browser demo](docs/OPERATOR_WORKFLOW.md).
+Actual local-model and real PostgreSQL CI evidence remain separately labelled.
 
 **CORE02 delivered:** versioned knowledge, exact source-offset chunks, durable
 indexing jobs and a separate local-model embedding path. A real PostgreSQL/
 pgvector run indexed 768-dimensional nomic vectors, recovered a crashed worker
 process and replaced a version without duplicate chunks. The original `/chat`
-and HTML interface retain the hash/extractive baseline. The new identity-bound
-RAG API uses a separate corpus and tokens; its operator/review UI and ticket
-integration remain CORE08 work. See the [indexing runbook](docs/INDEXING_RUNBOOK.md),
+and original HTML interface at `/baseline` retain the hash/extractive baseline.
+The identity-bound RAG workspace uses a separate corpus and tokens. See the [indexing runbook](docs/INDEXING_RUNBOOK.md),
 [claim/evidence ledger](docs/CLAIM_EVIDENCE.md) and
 [actual local-model readiness report](docs/model-readiness-2026-11-09.json).
 
@@ -55,7 +61,7 @@ python manage.py seed
 python run.py
 ```
 
-Open **http://127.0.0.1:8101**. Copy `FIELDDESK_USER_KEY` from your ignored `.env`
+Open **http://127.0.0.1:8101/baseline** for this offline baseline. Copy `FIELDDESK_USER_KEY` from your ignored `.env`
 into the access-key field. Ask **"How do I request a projector repair?"** and
 inspect the source quotes. Propose a ticket, switch to the operator key, load
 the operator queue and approve it. Repeating approval returns the same ticket.

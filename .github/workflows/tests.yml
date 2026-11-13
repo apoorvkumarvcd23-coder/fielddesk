@@ -38,14 +38,24 @@ jobs:
       - name: Clean disposable PostgreSQL indexing demo (offline hash adapter)
         run: python demo_indexing.py --postgres
   actual-model-rag:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: pip install -r requirements-dev.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.0'
+          cache: npm
+          cache-dependency-path: browser/package-lock.json
+      - name: Install pinned browser verifier
+        run: |
+          npm ci --prefix browser
+          cd browser
+          npx playwright install --with-deps chromium
       - name: Start loopback-only local CPU Ollama
         run: docker run --rm -d --name fielddesk-ollama -p 127.0.0.1:11434:11434 ollama/ollama:0.40.16
       - name: Wait for Ollama
@@ -61,11 +71,20 @@ jobs:
           docker exec fielddesk-ollama ollama pull qwen3.5:9b
       - name: Actual learned pgvector retrieval and structured cited generation
         run: python demo_rag.py --postgres --generation-model qwen3.5:9b --output artifacts/actual-pgvector-rag.json
+      - name: Actual learned worker crash restart and exact replay
+        run: python demo_indexing.py --backend ollama --postgres --output artifacts/actual-worker-restart.json
+      - name: Actual Chromium ingest answer handoff review and approved ticket
+        run: python demo_workflow.py --postgres --artifacts artifacts/workflow
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: actual-pgvector-rag
-          path: artifacts/actual-pgvector-rag.json
+          path: |
+            artifacts/actual-pgvector-rag.json
+            artifacts/actual-worker-restart.json
+            artifacts/workflow/*.json
+            artifacts/workflow/*.png
+            artifacts/workflow/*.log
       - name: Stop owned model container
         if: always()
         run: docker stop fielddesk-ollama

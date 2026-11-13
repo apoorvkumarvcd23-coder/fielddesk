@@ -160,7 +160,8 @@ class RagService:
         handoff = outcome != 'answered'
         if handoff:
             answer, citations = 'I cannot answer from your current permitted notes. Contact a service operator.', []
-        metadata = {**metadata, 'chunk_ids': [r['chunk_id'] for r in citations]}
+        metadata = {**metadata, 'chunk_ids': [r['chunk_id'] for r in citations],
+                    'query_sha256': hashlib.sha256(question.encode()).hexdigest()}
         with self.db.connect() as conn:
             self.db.run(conn, 'INSERT INTO rag_traces VALUES (?,?,?,?,?,?)', (
                 trace_id, actor['id'], space_id, outcome,
@@ -174,6 +175,8 @@ class RagService:
 def install_routes(app, knowledge, embedder=None, generator=None):
     service = RagService(app.state.db, embedder, generator)
     app.state.rag = service
+    if embedder:
+        knowledge.register_space(embedder.space)
     router = APIRouter(prefix='/rag')
 
     def identity(authorization: str = Header(default='')):
@@ -232,18 +235,65 @@ def install_routes(app, knowledge, embedder=None, generator=None):
     # Import here avoids the application factory's request-model import cycle.
     from app import KnowledgeDocument
 
-    @router.post('/documents', status_code=202, dependencies=[Depends(ingest_role)])
-    def ingest(doc: KnowledgeDocument):
+    @router.post('/documents', status_code=202)
+    def ingest(doc: KnowledgeDocument, actor=Depends(ingest_role)):
         try:
-            return knowledge.ingest(doc.source_key, doc.title, doc.body, doc.space_id)
+            space = doc.space_id or (embedder.space.id if embedder else None)
+            if not space:
+                raise HTTPException(503, 'Configure an embedding space first')
+            return knowledge.ingest(doc.source_key, doc.title, doc.body, space, actor['id'])
+        except PermissionError as failure:
+            raise HTTPException(403, str(failure)) from None
         except ValueError as failure:
             raise HTTPException(422, str(failure)) from None
 
-    @router.get('/jobs/{job_id}', dependencies=[Depends(ingest_role)])
-    def job(job_id: str):
+    @router.get('/jobs/{job_id}')
+    def job(job_id: str, actor=Depends(ingest_role)):
         result = knowledge.job(job_id)
         if result is None:
             raise HTTPException(404, 'Unknown index job')
+        with service.db.connect() as conn:
+            if not permitted_document(service.db, conn, result['document_id'], actor['id']):
+                raise HTTPException(404, 'Unknown index job')
         return result
 
+    @router.get('/config')
+    def config(actor=Depends(identity)):
+        return {'storage': 'pgvector' if service.db.postgres else 'SQLite exact scan',
+                'embedding': None if not embedder else {'id': embedder.space.id, 'backend': embedder.space.backend,
+                    'model': embedder.space.model, 'dimensions': embedder.space.dimensions},
+                'generation_model': getattr(generator, 'model', None), 'scope': 'Configured models, not a live health probe'}
+
+    @router.get('/spaces', dependencies=[Depends(ingest_role)])
+    def spaces():
+        return knowledge.spaces()
+
+    @router.get('/identities', dependencies=[Depends(admin)])
+    def identities():
+        with service.db.connect() as conn:
+            return [dict(r) for r in service.db.run(conn, 'SELECT id,name,role,enabled FROM rag_identities ORDER BY name').fetchall()]
+
+    @router.get('/documents')
+    def documents(actor=Depends(ingest_role)):
+        with service.db.connect() as conn:
+            rows = service.db.run(conn, '''SELECT d.id,d.source_key FROM knowledge_documents d
+                JOIN document_grants g ON g.document_id=d.id AND g.identity_id=? AND g.enabled=1
+                JOIN document_permissions p ON p.document_id=d.id AND p.enabled=1 ORDER BY d.created_at DESC,d.id LIMIT 50''', (actor['id'],)).fetchall()
+            return [dict(row) for row in rows]
+
+    @router.get('/jobs')
+    def jobs(actor=Depends(ingest_role)):
+        with service.db.connect() as conn:
+            rows = service.db.run(conn, '''SELECT j.id FROM index_jobs j JOIN document_versions v ON v.id=j.version_id
+                JOIN document_grants g ON g.document_id=v.document_id AND g.identity_id=? AND g.enabled=1
+                JOIN document_permissions p ON p.document_id=v.document_id AND p.enabled=1 ORDER BY j.created_at DESC,j.id LIMIT 50''', (actor['id'],)).fetchall()
+        return [knowledge.job(row['id']) for row in rows]
+
     app.include_router(router)
+    from reviews import install_review_routes
+    install_review_routes(app, service, identity, ingest_role)
+
+
+def permitted_document(db, conn, document_id, actor_id):
+    return db.run(conn, '''SELECT g.document_id FROM document_grants g JOIN document_permissions p ON p.document_id=g.document_id
+        WHERE g.document_id=? AND g.identity_id=? AND g.enabled=1 AND p.enabled=1''', (document_id, actor_id)).fetchone()
