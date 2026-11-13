@@ -97,13 +97,10 @@
     event.preventDefault(); const supplied = el('token').value; clear(); token = supplied;
     perform(el('connect'), async () => {
       actor = await api('/rag/me'); const config = await api('/rag/config');
-      text('identity', 'Connected as ' + actor.name + ' · ' + actor.role);
       text('configuration', config.storage + ' · ' + (config.embedding ? config.embedding.model : 'No embedding model configured') + ' · ' + (config.generation_model || 'Generation unavailable'));
-      el('connect-form').hidden = true; el('connected').hidden = false; el('workspace').hidden = false;
       el('question').value = 'What must I record in a projector repair ticket?';
       const privileged = actor.role !== 'user';
       text('review-heading', privileged ? 'Operator review queue' : 'Your review requests');
-      el('operator-tools').hidden = !privileged; el('admin-tools').hidden = actor.role !== 'admin';
       await refreshReviews();
       if (privileged) {
         const spaces = await api('/rag/spaces');
@@ -117,6 +114,11 @@
         if (!identity.enabled) continue;
         const option = node('option', identity.name + ' · ' + identity.role); option.value = identity.id; el('grant-identity').append(option);
       }
+      // Publish the connected workspace only after its required metadata is ready.
+      // A visible but empty required model selector otherwise blocks form submission.
+      text('identity', 'Connected as ' + actor.name + ' · ' + actor.role);
+      el('connect-form').hidden = true; el('connected').hidden = false; el('workspace').hidden = false;
+      el('operator-tools').hidden = !privileged; el('admin-tools').hidden = actor.role !== 'admin';
     });
   };
   el('disconnect').onclick = clear;

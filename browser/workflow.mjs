@@ -18,6 +18,11 @@ async function pageFor(name) {
   await page.getByRole('button', { name: 'Connect identity', exact: true }).click();
   await expect(page.locator('#identity')).toContainText('Connected as ' + name, { timeout: 30000 });
   expect(await page.locator('#token').inputValue()).toBe('');
+  if (['admin','operator'].includes(name)) {
+    expect(await page.getByLabel('Learned embedding space', { exact: true }).inputValue()).not.toBe('');
+    await expect(page.getByRole('button', { name: 'Queue document', exact: true })).toBeEnabled();
+  }
+  if (name === 'admin') expect(await page.getByLabel('Reader identity', { exact: true }).locator('option').count()).toBe(4);
   return page;
 }
 async function request(page, name, path, body, method) {
