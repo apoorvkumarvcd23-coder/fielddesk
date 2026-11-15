@@ -11,11 +11,9 @@ import socket
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
-import threading
 import time
 from urllib.request import urlopen
 import httpx
-import uvicorn
 from urllib.parse import urlsplit
 from app import create_app
 from demo_indexing import disposable_postgres
@@ -47,7 +45,8 @@ def demonstrate(url, directory):
         worker_log = (directory/'worker.log').open('w',encoding='utf-8')
         worker = subprocess.Popen([sys.executable,str(ROOT/'index_worker.py'),'run','--backend','ollama','--no-env'],
                                   cwd=ROOT,env=environment,stdout=worker_log,stderr=subprocess.STDOUT)
-        server = thread = None
+        server = None
+        processes, app_logs, lifecycle, controls = [], [], [], {}
         def sanitize(path):
             safe=path.read_text(encoding='utf-8')
             values=[legacy_user,legacy_operator,url,*[account['token'] for account in accounts.values()]]
@@ -56,35 +55,58 @@ def demonstrate(url, directory):
             for value in values:
                 if value: safe=safe.replace(value,'[REDACTED DEMO CREDENTIAL]')
             path.write_text(safe,encoding='utf-8')
-        def start(application):
-            listener = socket.socket()
-            listener.bind(('127.0.0.1',0))
-            listener.listen(128)
-            base = 'http://127.0.0.1:'+str(listener.getsockname()[1])
-            instance = uvicorn.Server(uvicorn.Config(application,host='127.0.0.1',log_level='error',
-                                                    timeout_graceful_shutdown=5))
-            running = threading.Thread(target=lambda:instance.run(sockets=[listener]),daemon=True)
-            running.start()
-            deadline = time.monotonic()+30
+        def start(label, **fault):
+            assert all(process.poll() is not None for process in processes), 'Previous owned app must exit before replacement'
+            info = Path(temporary)/(label+'-info.json')
+            config = Path(temporary)/(label+'-config.json')
+            stop_file = Path(temporary)/(label+'-stop')
+            exit_file = Path(temporary)/(label+'-exited.json')
+            descriptor = os.open(config,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+            with os.fdopen(descriptor,'w',encoding='utf-8') as output:
+                json.dump({'database':url,'legacy_user':legacy_user,'legacy_operator':legacy_operator,
+                           'info':str(info),'stop':str(stop_file),'exited':str(exit_file),**fault},output)
+            path = directory/('app-'+label+'.log')
+            log = path.open('w',encoding='utf-8');app_logs.append((path,log))
+            instance = subprocess.Popen([sys.executable,str(ROOT/'workflow_server.py'),'--config',str(config)],
+                                        cwd=ROOT,env=environment,stdout=log,stderr=subprocess.STDOUT)
+            processes.append(instance)
+            controls[instance.pid]=(stop_file,exit_file)
+            deadline = time.monotonic()+90
             while True:
+                if instance.poll() is not None or time.monotonic()>deadline:
+                    raise RuntimeError('Owned demo app process did not start; inspect sanitized app log')
                 try:
+                    details = json.loads(info.read_text(encoding='utf-8'))
+                    base = details['base_url']
                     with urlopen(base+'/health',timeout=2) as response:
                         if response.status==200: break
-                except OSError:
-                    if time.monotonic()>deadline: raise RuntimeError('Owned demo server did not start')
+                except (OSError,json.JSONDecodeError):
                     time.sleep(0.1)
-            return instance,running,base
-        def stop(instance,running):
-            if instance:
-                instance.should_exit=True
-                running.join(20)
-                if running.is_alive(): raise RuntimeError('Owned demo server did not stop')
-        def browser(base,outage=False):
+            lifecycle.append({'stage':label,'pid':details['pid'],'launcher_pid':instance.pid,'ready':True})
+            return instance,base
+        def stop(instance):
+            if instance and instance.poll() is None:
+                stop_file,exit_file=controls[instance.pid]
+                stop_file.touch()
+                try: instance.wait(timeout=20)
+                except subprocess.TimeoutExpired:
+                    if os.name=='nt':
+                        subprocess.run(['taskkill','/PID',str(instance.pid),'/T','/F'],capture_output=True,check=True)
+                    else: instance.kill()
+                    instance.wait(timeout=10)
+                    raise RuntimeError('Owned app failed graceful process shutdown; verifier cannot pass')
+                assert instance.poll() is not None
+                entry=next((row for row in lifecycle if row['launcher_pid']==instance.pid),None)
+                if entry is not None:
+                    exited=json.loads(exit_file.read_text(encoding='utf-8'))
+                    assert exited=={'pid':entry['pid'],'server_returned':True} and instance.returncode==0
+                    entry.update(exit_confirmed=True,exit_code=instance.returncode)
+        def browser(base,mode=None):
             env={**environment,'FIELDDESK_BASE_URL':base}
-            path=directory/('browser-outage.log' if outage else 'browser.log')
+            path=directory/('browser-'+mode+'.log' if mode else 'browser.log')
             try:
                 with path.open('w',encoding='utf-8') as log:
-                    result=subprocess.run(['node',str(ROOT/'browser/workflow.mjs'),*(['--outage'] if outage else [])],
+                    result=subprocess.run(['node',str(ROOT/'browser/workflow.mjs'),*(['--'+mode] if mode else [])],
                                           cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=420)
             finally:
                 sanitize(path)
@@ -95,7 +117,7 @@ def demonstrate(url, directory):
             response.raise_for_status()
             return response.json()
         try:
-            server,thread,base=start(app)
+            server,base=start('initial')
             browser(base)
             ui=json.loads((directory/'browser-workflow.json').read_text(encoding='utf-8'))
             answer=ui['answer']
@@ -115,27 +137,33 @@ def demonstrate(url, directory):
             before={'review':get(base,'alice','/rag/reviews/'+review_id),
                     'ticket':get(base,'alice','/rag/tickets/'+ticket_id),
                     'job':get(base,'admin','/rag/jobs/'+ui['job']['id'])}
+            stop(server);server=None
             with socket.socket() as unavailable:
                 unavailable.bind(('127.0.0.1',0))
-                original=generator.base_url
-                generator.base_url='http://127.0.0.1:'+str(unavailable.getsockname()[1])
-                try: browser(base,True)
-                finally: generator.base_url=original
-            original_timeout=generator.timeout
-            generator.timeout=0.001
+                server,base=start('outage',generation_endpoint='http://127.0.0.1:'+str(unavailable.getsockname()[1]))
+                try: browser(base,'outage')
+                finally: stop(server);server=None
+            server,base=start('timeout',generation_timeout=0.001)
             try:
                 response=httpx.post(base+'/rag/chat',headers={'Authorization':'Bearer '+accounts['alice']['token']},
                     json={'message':'What must I record in a projector repair ticket?'},timeout=60)
                 response.raise_for_status();timeout_result=response.json()
                 assert timeout_result['handoff'] and not timeout_result['citations']
-            finally: generator.timeout=original_timeout
-            stop(server,thread);server=thread=None
-            restarted=create_app(url,legacy_user,legacy_operator,embedder,generator)
-            server,thread,base=start(restarted)
+            finally: stop(server);server=None
+            server,base=start('restarted')
             after={'review':get(base,'alice','/rag/reviews/'+review_id),
                    'ticket':get(base,'alice','/rag/tickets/'+ticket_id),
                    'job':get(base,'admin','/rag/jobs/'+ui['job']['id'])}
             assert before==after
+            assert len({row['pid'] for row in lifecycle})==4
+            assert all(row.get('exit_confirmed') for row in lifecycle[:-1])
+            for path in ['/rag/reviews/'+review_id,'/rag/tickets/'+ticket_id]:
+                assert httpx.get(base+path,headers={'Authorization':'Bearer '+accounts['bob']['token']}).status_code==404
+            browser(base,'resume')
+            resumed=json.loads((directory/'browser-resume.json').read_text(encoding='utf-8'))
+            assert resumed['review_id']==review_id and resumed['ticket_id']==ticket_id
+            resumed_metadata=json.loads(get(base,'alice','/rag/traces/'+resumed['answer']['trace_id'])['metadata'])
+            assert resumed_metadata.get('model')=='qwen3.5:9b' and resumed_metadata.get('prompt_eval_count',0)>0
             with db.connect() as conn:
                 count=db.run(conn,'SELECT count(*) AS n FROM tickets').fetchone()['n']
                 assert count==1
@@ -148,17 +176,21 @@ def demonstrate(url, directory):
                     'outage':json.loads((directory/'browser-outage.json').read_text()),
                     'actual_1ms_transport_timeout':timeout_result,
                     'app_restart_preserved_exact_review_ticket_job':True,'persisted_ticket_count':count,
-                    'app_restart_method':'Fresh FastAPI application instance and loopback listener in the same demo process; exact HTTP state reread from the same database. Worker process crash/restart is verified separately by demo_indexing.py.',
+                    'app_restart_method':'Owned OS app processes receive a private shutdown signal and are waited for before each fresh subprocess; exact HTTP review/ticket/job state reread from the same database. Final process performs a new actual model answer through Chromium. Index-worker crash/restart is a separate drill.',
+                    'app_process_lifecycle':lifecycle,'post_restart_browser':resumed,
+                    'post_restart_trace_metadata':resumed_metadata,
                     'restricted_source_http_status':restricted_status,
                     'limits':'Synthetic workflow demonstration, not held-out answer accuracy or production ticket-provider integration. Native SQLite evidence does not prove PostgreSQL; Linux CI runs the pgvector variant.'}
         finally:
             try:
-                stop(server,thread)
+                for process in processes: stop(process)
             finally:
                 worker.terminate()
                 worker.wait(timeout=20)
                 worker_log.close()
                 sanitize(directory/'worker.log')
+                for path,log in app_logs:
+                    log.close();sanitize(path)
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)

@@ -73,7 +73,7 @@ jobs:
         run: python demo_rag.py --postgres --generation-model qwen3.5:9b --output artifacts/actual-pgvector-rag.json
       - name: Actual learned worker crash restart and exact replay
         run: python demo_indexing.py --backend ollama --postgres --output artifacts/actual-worker-restart.json
-      - name: Actual Chromium ingest answer handoff review and approved ticket
+      - name: Actual Chromium workflow and full app-process stop restart
         run: python demo_workflow.py --postgres --artifacts artifacts/workflow
       - uses: actions/upload-artifact@v4
         if: always()

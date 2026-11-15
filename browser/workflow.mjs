@@ -46,6 +46,24 @@ try {
     expect(result.citations).toEqual([]);
     await page.screenshot({ path: resolve(out,'model-outage.png'), fullPage: true });
     writeFileSync(resolve(out,'browser-outage.json'), JSON.stringify(result,null,2));
+  } else if (process.argv.includes('--resume')) {
+    const prior = JSON.parse(readFileSync(resolve(out,'browser-workflow.json'),'utf8'));
+    const page = await pageFor('alice');
+    const row = page.locator('[data-review-id="'+prior.review_id+'"]');
+    await expect(row).toContainText('resolved');
+    await row.getByRole('button', { name: 'View service ticket', exact: true }).click();
+    const ticket = prior.approved.action.ticket_id;
+    await expect(row).toContainText(ticket);
+    const answer = await question(page,'What must I record in a projector repair ticket?',false);
+    expect(answer.citations.length).toBeGreaterThan(0);
+    await page.getByRole('button', { name: 'View permitted source', exact: true }).first().click();
+    await expect(page.locator('#citations')).toContainText('room code');
+    await page.screenshot({ path: resolve(out,'app-process-restart.png'), fullPage: true });
+    writeFileSync(resolve(out,'browser-resume.json'),JSON.stringify({
+      review_id:prior.review_id,ticket_id:ticket,answer,
+      integration:'Fresh Chromium session connected to replacement OS app process; existing resolved review/ticket and new actual cited model answer',
+      images:['app-process-restart.png']
+    },null,2));
   } else {
     const admin = await pageFor('admin');
     await admin.getByLabel('Source key', { exact: true }).fill('synthetic-ui-projector');

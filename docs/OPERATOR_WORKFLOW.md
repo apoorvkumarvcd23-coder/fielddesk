@@ -158,8 +158,15 @@ The demo generates private temporary credentials and owns a fresh disposable
 pgvector container; it ignores personal .env/DATABASE_URL. It starts its own
 loopback app and worker, drives actual Chromium UI/model calls, checks permission
 denials and source quotes, injects a real failed loopback generation connection
-and a 1ms transport deadline, then starts a fresh FastAPI app instance/listener
-in the same demo process and compares exact persisted review/ticket/job state.
+and a 1ms transport deadline in separately owned app subprocesses. Each app
+receives a private shutdown-file signal and must exit with code zero before its
+replacement starts. A fresh final app process compares exact persisted review,
+ticket and job state, denies the other user again, then serves a new actual-model
+answer and the existing approved ticket through a fresh Chromium session.
+The report records actual app PIDs separately from Windows virtualenv launcher
+PIDs, confirmed exit codes and post-restart inference counters. Private config,
+control files and credentials live only in the temporary directory. This is a
+graceful full app-process restart, not an app crash or database restart.
 The separate worker drill below uses an actual crashed/replacement process.
 Only synthetic fixtures are used. Logs redact generated
 tokens before artifact publication. No browser tracing is enabled.

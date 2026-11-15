@@ -46,6 +46,13 @@ grounding, throughput, production scale or customer use.
 | Human proposal/approval shares existing ticket workflow with identity scope | rag_ticket_links, ReviewStore.approve | Concurrent approval, self/foreign-owner/legacy denial and atomic rollback tests |
 | Actual learned UI → handoff → approved ticket persists across app-instance recreation | demo_workflow.py, browser/workflow.mjs | Fresh FastAPI instance/listener in the same process; exact database/HTTP state comparison, distinct from the worker-process crash drill |
 
+CORE10 extends the verifier with `workflow_server.py` app subprocesses: each
+process must exit before replacement; fresh authenticated HTTP reads compare
+exact review/ticket/job state and Chromium performs a new cited model answer.
+This full process stop/start is distinct from the historical 14 November
+same-process app-instance report. New source CI and its actual-model artifact
+must pass before this new process verification is claimed as recorded evidence.
+
 See [operator contracts and reproducible verification](OPERATOR_WORKFLOW.md).
 
 Recorded 14 November: [permanent native and Linux/pgvector report](operator-workflow-2026-11-14.json)
