@@ -111,6 +111,36 @@ proposals cannot reserve the identity workflow's server-owned request-key namesp
 
 ## Reproducible evidence
 
+### Full app-process restart — 16 November 2026
+
+The [new permanent report](app-process-restart-2026-11-16.json) closes the
+same-process limitation of the historical 14 November verifier. Native
+Windows/SQLite and [clean Linux/pgvector source CI](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/runs/43753662693)
+at `93e0a435a2c2283b38f401da1ff3c6e03bc0db43` both execute actual nomic/Qwen
+inference and Chromium. Four distinct app processes (initial, generation outage,
+1ms transport deadline, restored) exit with code zero before replacement. Exact
+review/ticket/job state survives, the other user still receives 404, and a new
+Chromium session sees the resolved review/approved ticket and a new cited answer.
+The native replacement answer uses 260 prompt and 144 output tokens. This is a
+single synthetic demonstration, not an answer-accuracy or throughput score.
+
+All 61 regression tests pass on native SQLite and both clean Linux backends.
+The actual-model CI also independently runs pgvector cited RAG and a learned
+worker-process crash/replacement/replay drill. Exact model digests/counters and
+both platforms are retained in the report; native SQLite is not pgvector proof.
+Final clean-clone/claim acceptance remains 17 November. Held-out evaluation and
+broader December gates remain open; no release tag is earned here.
+
+Six inspected images below come from the actual native Windows/SQLite run:
+
+| View | Screenshot |
+| --- | --- |
+| Ingest/grants and actual learned READY job | [Desktop](evidence/2026-11-16/indexing-admin.png), [390px mobile](evidence/2026-11-16/indexing-mobile.png) |
+| Cited answer with exact permitted source | [Answer](evidence/2026-11-16/cited-answer.png) |
+| Explicitly approved human service ticket | [Review](evidence/2026-11-16/approved-review.png) |
+| Real failed generation connection hands off | [Outage](evidence/2026-11-16/model-outage.png) |
+| Fresh app process, same approved ticket and new actual model answer | [Process restart](evidence/2026-11-16/app-process-restart.png) |
+
 ### Recorded native demonstration — 14 November 2026
 
 The [recorded report](operator-workflow-2026-11-14.json) contains actual

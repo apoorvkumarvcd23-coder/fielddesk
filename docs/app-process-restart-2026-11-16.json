@@ -1,0 +1,760 @@
+{
+  "recorded_date_ist": "2026-11-16",
+  "scope": "CORE10 app-process restart repair; full core/claim audit remains 17 November",
+  "verified_source": "93e0a435a2c2283b38f401da1ff3c6e03bc0db43",
+  "native_model_readiness": {
+    "purpose": "Real local model readiness only; not retrieval or answer-quality evidence",
+    "recorded_at_utc": "2026-11-15T19:33:12.558225+00:00",
+    "ollama_version": "0.17.7",
+    "hardware": {
+      "os": "Windows",
+      "architecture": "AMD64",
+      "logical_cpus": 20,
+      "gpu_at_probe": "NVIDIA GeForce RTX 4070 Laptop GPU, 8188 MiB, 5053 MiB"
+    },
+    "embedding_space": {
+      "id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+      "backend": "ollama",
+      "model": "nomic-embed-text:v1.5",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+      "dimensions": 768,
+      "chunking_version": "chars-600-overlap-80-v1"
+    },
+    "embedding_probe": {
+      "inputs": 2,
+      "dimensions": [
+        768,
+        768
+      ],
+      "norms": [
+        1.0,
+        1.0
+      ],
+      "elapsed_seconds_including_setup": 1.635
+    },
+    "generation_probe": {
+      "model": "qwen3.5:9b",
+      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+      "options": {
+        "temperature": 0,
+        "seed": 7,
+        "num_ctx": 2048,
+        "num_predict": 32
+      },
+      "prompt": "Reply with exactly the single word READY.",
+      "response": "READY",
+      "prompt_eval_count": 20,
+      "eval_count": 2,
+      "total_duration_ns": 11544436400,
+      "done": true
+    }
+  },
+  "native": {
+    "inference": "Actual local Ollama embeddings and Qwen generation; actual Chromium UI and HTTP; no mocked model/API adapters",
+    "storage": "SQLite exact scan (not pgvector)",
+    "platform": "Windows",
+    "python": "3.12.14",
+    "embedding": {
+      "backend": "ollama",
+      "model": "nomic-embed-text:v1.5",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+      "dimensions": 768,
+      "chunking_version": "chars-600-overlap-80-v1"
+    },
+    "generation": {
+      "model": "qwen3.5:9b",
+      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7"
+    },
+    "answer_trace_metadata": {
+      "model": "qwen3.5:9b",
+      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+      "prompt_eval_count": 260,
+      "eval_count": 144,
+      "total_duration": 27865148000,
+      "load_duration": 9238946500,
+      "chunk_ids": [
+        "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1"
+      ],
+      "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+    },
+    "browser_workflow": {
+      "integration": "Actual Chromium UI \u2192 FastAPI \u2192 persisted data and actual local models; no API/model/browser mocks",
+      "job": {
+        "id": "ef92406d204800bfc845e459234e723098b082860e87ffdc2d2f4007dfd15d02",
+        "version_id": "ddda2c18e9bf2b9717c4bea3206aa2082b8300609084492773c750b0d820c211",
+        "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+        "status": "pending",
+        "attempts": 0,
+        "max_attempts": 3,
+        "available_at": 1794771456.2598064,
+        "lease_until": null,
+        "last_error": null,
+        "document_id": "d7e3b363d8556a52cdbcc5ce855e993ebfbabb1a073f02a316a1027c51161e6a",
+        "model": "nomic-embed-text:v1.5",
+        "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+        "dimensions": 768,
+        "indexed_chunks": 0
+      },
+      "replay_job_id": "ef92406d204800bfc845e459234e723098b082860e87ffdc2d2f4007dfd15d02",
+      "answer": {
+        "answer": "To request a projector repair, you must record the room code and the fault description in the service ticket.",
+        "citations": [
+          {
+            "chunk_id": "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1",
+            "document_id": "d7e3b363d8556a52cdbcc5ce855e993ebfbabb1a073f02a316a1027c51161e6a",
+            "version_id": "ddda2c18e9bf2b9717c4bea3206aa2082b8300609084492773c750b0d820c211",
+            "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+            "title": "Synthetic projector repairs",
+            "quote": "To request a projector repair, record the room code and the fault description in the ticket.",
+            "start_offset": 52,
+            "end_offset": 144
+          }
+        ],
+        "handoff": false,
+        "reason": "answered",
+        "trace_id": "ff79607c-aa37-494f-aa2a-f4bf1dd09cdc",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "unsupported": {
+        "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+        "citations": [],
+        "handoff": true,
+        "reason": "unsupported",
+        "trace_id": "fa0e5a74-76dc-4d72-87a8-dee4cd498a84",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "review_id": "0ad70c71-483c-4470-91d6-028a518c37d6",
+      "approved": {
+        "id": "0ad70c71-483c-4470-91d6-028a518c37d6",
+        "trace_id": "fa0e5a74-76dc-4d72-87a8-dee4cd498a84",
+        "requester_id": "3ad26e89fbcb229f272e17e59c43bf8497f58bafbafe48958f2304a7786631c8",
+        "question": "What is the price of a projector repair?",
+        "state": "resolved",
+        "revision": 3,
+        "assigned_to": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8",
+        "resolution": "Approved service ticket",
+        "created_at": 1794771500.8907597,
+        "expires_at": 1795376300.8907597,
+        "deleted_at": null,
+        "requester": "alice",
+        "action": {
+          "id": "d24386f4-0f12-410e-9eee-940ec0afac20",
+          "title": "Synthetic projector pricing enquiry",
+          "status": "approved",
+          "created_at": 1794771501.6399908,
+          "ticket_id": "5bd24eab-423c-4e70-8c9e-fcbcbec1ffe1",
+          "approved_by": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8"
+        },
+        "events": [
+          {
+            "actor_id": "3ad26e89fbcb229f272e17e59c43bf8497f58bafbafe48958f2304a7786631c8",
+            "event": "submitted",
+            "created_at": 1794771500.8917608
+          },
+          {
+            "actor_id": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8",
+            "event": "claimed",
+            "created_at": 1794771501.558533
+          },
+          {
+            "actor_id": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8",
+            "event": "ticket_proposed",
+            "created_at": 1794771501.6429899
+          },
+          {
+            "actor_id": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8",
+            "event": "ticket_approved",
+            "created_at": 1794771501.7060554
+          }
+        ]
+      },
+      "permission_checks": {
+        "user_claim": 403,
+        "cross_user_review": 404,
+        "cross_user_ticket": 404,
+        "disconnect_clears_private_state": true
+      },
+      "images": [
+        "indexing-admin.png",
+        "indexing-mobile.png",
+        "cited-answer.png",
+        "approved-review.png"
+      ]
+    },
+    "outage": {
+      "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+      "citations": [],
+      "handoff": true,
+      "reason": "model_unavailable",
+      "trace_id": "269e274c-24a8-46c2-b0c6-8c0ee8c8fd86",
+      "mode": "local-model-rag",
+      "storage": "sqlite-exact-scan"
+    },
+    "actual_1ms_transport_timeout": {
+      "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+      "citations": [],
+      "handoff": true,
+      "reason": "model_unavailable",
+      "trace_id": "5c1a16f5-99bf-4493-8c86-859c7802ab74",
+      "mode": "local-model-rag",
+      "storage": "sqlite-exact-scan"
+    },
+    "app_restart_preserved_exact_review_ticket_job": true,
+    "persisted_ticket_count": 1,
+    "app_restart_method": "Owned OS app processes receive a private shutdown signal and are waited for before each fresh subprocess; exact HTTP review/ticket/job state reread from the same database. Final process performs a new actual model answer through Chromium. Index-worker crash/restart is a separate drill.",
+    "app_process_lifecycle": [
+      {
+        "stage": "initial",
+        "pid": 37764,
+        "launcher_pid": 17928,
+        "ready": true,
+        "exit_confirmed": true,
+        "exit_code": 0
+      },
+      {
+        "stage": "outage",
+        "pid": 38200,
+        "launcher_pid": 11656,
+        "ready": true,
+        "exit_confirmed": true,
+        "exit_code": 0
+      },
+      {
+        "stage": "timeout",
+        "pid": 26808,
+        "launcher_pid": 47852,
+        "ready": true,
+        "exit_confirmed": true,
+        "exit_code": 0
+      },
+      {
+        "stage": "restarted",
+        "pid": 47548,
+        "launcher_pid": 13076,
+        "ready": true,
+        "exit_confirmed": true,
+        "exit_code": 0
+      }
+    ],
+    "post_restart_browser": {
+      "review_id": "0ad70c71-483c-4470-91d6-028a518c37d6",
+      "ticket_id": "5bd24eab-423c-4e70-8c9e-fcbcbec1ffe1",
+      "answer": {
+        "answer": "To request a projector repair, you must record the room code and the fault description in the service ticket.",
+        "citations": [
+          {
+            "chunk_id": "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1",
+            "document_id": "d7e3b363d8556a52cdbcc5ce855e993ebfbabb1a073f02a316a1027c51161e6a",
+            "version_id": "ddda2c18e9bf2b9717c4bea3206aa2082b8300609084492773c750b0d820c211",
+            "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+            "title": "Synthetic projector repairs",
+            "quote": "To request a projector repair, record the room code and the fault description in the ticket.",
+            "start_offset": 52,
+            "end_offset": 144
+          }
+        ],
+        "handoff": false,
+        "reason": "answered",
+        "trace_id": "86851e5d-2414-4e08-a57f-900fefb23308",
+        "mode": "local-model-rag",
+        "storage": "sqlite-exact-scan"
+      },
+      "integration": "Fresh Chromium session connected to replacement OS app process; existing resolved review/ticket and new actual cited model answer",
+      "images": [
+        "app-process-restart.png"
+      ]
+    },
+    "post_restart_trace_metadata": {
+      "model": "qwen3.5:9b",
+      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+      "prompt_eval_count": 260,
+      "eval_count": 144,
+      "total_duration": 27053269400,
+      "load_duration": 8423074600,
+      "chunk_ids": [
+        "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1"
+      ],
+      "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+    },
+    "restricted_source_http_status": 404,
+    "limits": "Synthetic workflow demonstration, not held-out answer accuracy or production ticket-provider integration. Native SQLite evidence does not prove PostgreSQL; Linux CI runs the pgvector variant."
+  },
+  "ci": {
+    "url": "https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/runs/43753662693",
+    "artifact": {
+      "id": 14177128779,
+      "name": "actual-pgvector-rag",
+      "size_in_bytes": 981780,
+      "zip_sha256": "sha256:ab935d56341a5f7622095a0386c94dccf9f2f384b8b611796723207ab69e65dd",
+      "head_sha": "93e0a435a2c2283b38f401da1ff3c6e03bc0db43"
+    },
+    "tests": {
+      "SQLite": 61,
+      "PostgreSQL_pgvector": 61
+    },
+    "workflow": {
+      "inference": "Actual local Ollama embeddings and Qwen generation; actual Chromium UI and HTTP; no mocked model/API adapters",
+      "storage": "PostgreSQL/pgvector",
+      "platform": "Linux",
+      "python": "3.12.16",
+      "embedding": {
+        "backend": "ollama",
+        "model": "nomic-embed-text:v1.5",
+        "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+        "dimensions": 768,
+        "chunking_version": "chars-600-overlap-80-v1"
+      },
+      "generation": {
+        "model": "qwen3.5:9b",
+        "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90"
+      },
+      "answer_trace_metadata": {
+        "model": "qwen3.5:9b",
+        "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+        "prompt_eval_count": 260,
+        "eval_count": 142,
+        "total_duration": 54243350665,
+        "load_duration": 9586791944,
+        "chunk_ids": [
+          "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1"
+        ],
+        "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+      },
+      "browser_workflow": {
+        "integration": "Actual Chromium UI \u2192 FastAPI \u2192 persisted data and actual local models; no API/model/browser mocks",
+        "job": {
+          "id": "ef92406d204800bfc845e459234e723098b082860e87ffdc2d2f4007dfd15d02",
+          "version_id": "ddda2c18e9bf2b9717c4bea3206aa2082b8300609084492773c750b0d820c211",
+          "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+          "status": "pending",
+          "attempts": 0,
+          "max_attempts": 3,
+          "available_at": 1794771856.1489055,
+          "lease_until": null,
+          "last_error": null,
+          "document_id": "d7e3b363d8556a52cdbcc5ce855e993ebfbabb1a073f02a316a1027c51161e6a",
+          "model": "nomic-embed-text:v1.5",
+          "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+          "dimensions": 768,
+          "indexed_chunks": 0
+        },
+        "replay_job_id": "ef92406d204800bfc845e459234e723098b082860e87ffdc2d2f4007dfd15d02",
+        "answer": {
+          "answer": "To record in a projector repair ticket, you must include the room code and the fault description.",
+          "citations": [
+            {
+              "chunk_id": "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1",
+              "document_id": "d7e3b363d8556a52cdbcc5ce855e993ebfbabb1a073f02a316a1027c51161e6a",
+              "version_id": "ddda2c18e9bf2b9717c4bea3206aa2082b8300609084492773c750b0d820c211",
+              "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+              "title": "Synthetic projector repairs",
+              "quote": "To request a projector repair, record the room code and the fault description in the ticket.",
+              "start_offset": 52,
+              "end_offset": 144
+            }
+          ],
+          "handoff": false,
+          "reason": "answered",
+          "trace_id": "34dfa863-a288-4785-8ca3-6535021b5fa3",
+          "mode": "local-model-rag",
+          "storage": "pgvector"
+        },
+        "unsupported": {
+          "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+          "citations": [],
+          "handoff": true,
+          "reason": "unsupported",
+          "trace_id": "8348e285-9c92-45ad-b04b-67101dcbf541",
+          "mode": "local-model-rag",
+          "storage": "pgvector"
+        },
+        "review_id": "d7334bcd-90f6-4b28-a33e-5b0cd60dc307",
+        "approved": {
+          "id": "d7334bcd-90f6-4b28-a33e-5b0cd60dc307",
+          "trace_id": "8348e285-9c92-45ad-b04b-67101dcbf541",
+          "requester_id": "3ad26e89fbcb229f272e17e59c43bf8497f58bafbafe48958f2304a7786631c8",
+          "question": "What is the price of a projector repair?",
+          "state": "resolved",
+          "revision": 3,
+          "assigned_to": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8",
+          "resolution": "Approved service ticket",
+          "created_at": 1794771935.3253572,
+          "expires_at": 1795376735.3253572,
+          "deleted_at": null,
+          "requester": "alice",
+          "action": {
+            "id": "1c1f09a6-17e2-4dee-a98a-cc781d181dd6",
+            "title": "Synthetic projector pricing enquiry",
+            "status": "approved",
+            "created_at": 1794771936.4421,
+            "ticket_id": "8fbef5cd-39cc-4458-9b61-8fd85904f44f",
+            "approved_by": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8"
+          },
+          "events": [
+            {
+              "actor_id": "3ad26e89fbcb229f272e17e59c43bf8497f58bafbafe48958f2304a7786631c8",
+              "event": "submitted",
+              "created_at": 1794771935.325862
+            },
+            {
+              "actor_id": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8",
+              "event": "claimed",
+              "created_at": 1794771936.2248335
+            },
+            {
+              "actor_id": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8",
+              "event": "ticket_proposed",
+              "created_at": 1794771936.4427774
+            },
+            {
+              "actor_id": "233a425c238baa7c768e7cc518a3ad2c94e8ba5d76b05886bdb3b3574de784f8",
+              "event": "ticket_approved",
+              "created_at": 1794771936.6554406
+            }
+          ]
+        },
+        "permission_checks": {
+          "user_claim": 403,
+          "cross_user_review": 404,
+          "cross_user_ticket": 404,
+          "disconnect_clears_private_state": true
+        },
+        "images": [
+          "indexing-admin.png",
+          "indexing-mobile.png",
+          "cited-answer.png",
+          "approved-review.png"
+        ]
+      },
+      "outage": {
+        "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+        "citations": [],
+        "handoff": true,
+        "reason": "model_unavailable",
+        "trace_id": "a83f4199-6e71-4610-abc3-55e664710606",
+        "mode": "local-model-rag",
+        "storage": "pgvector"
+      },
+      "actual_1ms_transport_timeout": {
+        "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+        "citations": [],
+        "handoff": true,
+        "reason": "model_unavailable",
+        "trace_id": "5c65228c-4aec-4398-a77c-3c5cd7f82a8b",
+        "mode": "local-model-rag",
+        "storage": "pgvector"
+      },
+      "app_restart_preserved_exact_review_ticket_job": true,
+      "persisted_ticket_count": 1,
+      "app_restart_method": "Owned OS app processes receive a private shutdown signal and are waited for before each fresh subprocess; exact HTTP review/ticket/job state reread from the same database. Final process performs a new actual model answer through Chromium. Index-worker crash/restart is a separate drill.",
+      "app_process_lifecycle": [
+        {
+          "stage": "initial",
+          "pid": 6727,
+          "launcher_pid": 6727,
+          "ready": true,
+          "exit_confirmed": true,
+          "exit_code": 0
+        },
+        {
+          "stage": "outage",
+          "pid": 9017,
+          "launcher_pid": 9017,
+          "ready": true,
+          "exit_confirmed": true,
+          "exit_code": 0
+        },
+        {
+          "stage": "timeout",
+          "pid": 9116,
+          "launcher_pid": 9116,
+          "ready": true,
+          "exit_confirmed": true,
+          "exit_code": 0
+        },
+        {
+          "stage": "restarted",
+          "pid": 9126,
+          "launcher_pid": 9126,
+          "ready": true,
+          "exit_confirmed": true,
+          "exit_code": 0
+        }
+      ],
+      "post_restart_browser": {
+        "review_id": "d7334bcd-90f6-4b28-a33e-5b0cd60dc307",
+        "ticket_id": "8fbef5cd-39cc-4458-9b61-8fd85904f44f",
+        "answer": {
+          "answer": "To record in a projector repair ticket, you must include the room code and the fault description.",
+          "citations": [
+            {
+              "chunk_id": "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1",
+              "document_id": "d7e3b363d8556a52cdbcc5ce855e993ebfbabb1a073f02a316a1027c51161e6a",
+              "version_id": "ddda2c18e9bf2b9717c4bea3206aa2082b8300609084492773c750b0d820c211",
+              "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+              "title": "Synthetic projector repairs",
+              "quote": "To request a projector repair, record the room code and the fault description in the ticket.",
+              "start_offset": 52,
+              "end_offset": 144
+            }
+          ],
+          "handoff": false,
+          "reason": "answered",
+          "trace_id": "e63b10b3-fc1e-4347-941c-e86bb0368b52",
+          "mode": "local-model-rag",
+          "storage": "pgvector"
+        },
+        "integration": "Fresh Chromium session connected to replacement OS app process; existing resolved review/ticket and new actual cited model answer",
+        "images": [
+          "app-process-restart.png"
+        ]
+      },
+      "post_restart_trace_metadata": {
+        "model": "qwen3.5:9b",
+        "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+        "prompt_eval_count": 260,
+        "eval_count": 142,
+        "total_duration": 54486369207,
+        "load_duration": 9586854913,
+        "chunk_ids": [
+          "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1"
+        ],
+        "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+      },
+      "restricted_source_http_status": 404,
+      "limits": "Synthetic workflow demonstration, not held-out answer accuracy or production ticket-provider integration. Native SQLite evidence does not prove PostgreSQL; Linux CI runs the pgvector variant."
+    },
+    "actual_learned_worker_restart": {
+      "scope": "Indexing foundation only; chat still uses the separate offline hash corpus",
+      "storage": "PostgreSQL/pgvector",
+      "server_version": "17.12 (Debian 17.12-1.pgdg12+1)",
+      "backend": "ollama",
+      "model": "nomic-embed-text:v1.5",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+      "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+      "dimensions": 768,
+      "stored_dimensions_min_max": [
+        768,
+        768
+      ],
+      "first_job": {
+        "id": "ab0e973a31cd05db12a792b954c05b8c29d1b44a759b38dd91f5313b78e70837",
+        "version_id": "8f90a91b1dfdf38edcc9cd7a14ea02343aabc1cdf465d3eecc02b97ef8b754f2",
+        "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+        "status": "ready",
+        "attempts": 2,
+        "max_attempts": 3,
+        "available_at": 1794771846.750716,
+        "lease_until": null,
+        "last_error": null,
+        "document_id": "91e817f92faac2dbec6b6af53abecf4767e5db14d4a8023324a06e22d9775e05",
+        "model": "nomic-embed-text:v1.5",
+        "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+        "dimensions": 768,
+        "indexed_chunks": 4
+      },
+      "worker_crash_exit_code": 23,
+      "restarted_worker_completed": true,
+      "exact_replay_no_duplicates": true,
+      "source_offsets_verified": true,
+      "previous_ready_retained_until_replacement": true,
+      "replacement_job": {
+        "id": "0afab97ef1fea45a08154e9a8f3d2e7f8aa5e212a900dfc9223d179d73f74b77",
+        "version_id": "b651a877c68a7f7cd10ff3985a4ff6902bd11e686d07c3c6b4354cee67d89ede",
+        "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+        "status": "ready",
+        "attempts": 1,
+        "max_attempts": 3,
+        "available_at": 1794771848.9605567,
+        "lease_until": null,
+        "last_error": null,
+        "document_id": "91e817f92faac2dbec6b6af53abecf4767e5db14d4a8023324a06e22d9775e05",
+        "model": "nomic-embed-text:v1.5",
+        "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+        "dimensions": 768,
+        "indexed_chunks": 4
+      }
+    },
+    "actual_pgvector_rag": {
+      "inference": "actual Ollama embedding and generation requests, no mocked model adapters",
+      "storage": "PostgreSQL/pgvector",
+      "platform": "Linux",
+      "python": "3.12.16",
+      "embedding": {
+        "backend": "ollama",
+        "model": "nomic-embed-text:v1.5",
+        "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+        "dimensions": 768,
+        "chunking_version": "chars-600-overlap-80-v1"
+      },
+      "generation": {
+        "model": "qwen3.5:9b",
+        "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+        "num_ctx": 4096,
+        "num_predict": 400,
+        "temperature": 0,
+        "seed": 7,
+        "think": false
+      },
+      "indexed_documents": 2,
+      "restricted_source_http_status": 404,
+      "restricted_document_excluded_before_prompt": true,
+      "cases": [
+        {
+          "case": "answerable",
+          "question": "What must I record in a projector repair ticket?",
+          "response": {
+            "answer": "To record a projector repair ticket, you must include the room code and the fault description.",
+            "citations": [
+              {
+                "chunk_id": "1fd27eb14719c2b885c46cbccc0859c301b98d6c939bfafd037cb5ce7d912318",
+                "document_id": "ac693f0b0c4373bcf3c9755d0bcb29ec955fd8ae75b7fb96620ad79e922b2302",
+                "version_id": "b9c7b236601a68bd50d15a296b010f6d2bd935dd4c26c512b12ad16a9853dd98",
+                "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+                "title": "Synthetic projector repairs",
+                "quote": "To request a projector repair, record the room code and the fault description in the ticket.",
+                "start_offset": 52,
+                "end_offset": 144
+              }
+            ],
+            "handoff": false,
+            "reason": "answered",
+            "trace_id": "133aba7b-82d2-4fb1-a69c-f961635bf40d",
+            "mode": "local-model-rag",
+            "storage": "pgvector"
+          },
+          "elapsed_ms": 51025.48571600002,
+          "metadata": {
+            "model": "qwen3.5:9b",
+            "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+            "prompt_eval_count": 257,
+            "eval_count": 138,
+            "total_duration": 50918772193,
+            "load_duration": 7074728560,
+            "chunk_ids": [
+              "1fd27eb14719c2b885c46cbccc0859c301b98d6c939bfafd037cb5ce7d912318"
+            ],
+            "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+          }
+        },
+        {
+          "case": "unsupported",
+          "question": "What is the price of a projector repair?",
+          "response": {
+            "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+            "citations": [],
+            "handoff": true,
+            "reason": "unsupported",
+            "trace_id": "f5617db6-4960-485c-bb5a-a0db29ade888",
+            "mode": "local-model-rag",
+            "storage": "pgvector"
+          },
+          "elapsed_ms": 23105.246986,
+          "metadata": {
+            "model": "qwen3.5:9b",
+            "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+            "prompt_eval_count": 256,
+            "eval_count": 17,
+            "total_duration": 22856847648,
+            "load_duration": 11097389319,
+            "chunk_ids": [],
+            "query_sha256": "e4c9d0a1e6f5dda503ea0927882f9db5da60f90b7634e54d174d477d09f2f122"
+          }
+        },
+        {
+          "case": "restricted",
+          "question": "What is the restricted lab access code?",
+          "response": {
+            "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+            "citations": [],
+            "handoff": true,
+            "reason": "unsupported",
+            "trace_id": "bc222700-5718-479d-8bbb-966b4e0f527f",
+            "mode": "local-model-rag",
+            "storage": "pgvector"
+          },
+          "elapsed_ms": 22099.690495000003,
+          "metadata": {
+            "model": "qwen3.5:9b",
+            "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+            "prompt_eval_count": 255,
+            "eval_count": 17,
+            "total_duration": 21837047604,
+            "load_duration": 10342644040,
+            "chunk_ids": [],
+            "query_sha256": "e1dafcde1bea24c671dc773707317672e60b318fdf70942025dc4a165109cfa5"
+          }
+        },
+        {
+          "case": "generation_endpoint_unavailable",
+          "question": "What must I record in a projector repair ticket?",
+          "response": {
+            "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+            "citations": [],
+            "handoff": true,
+            "reason": "model_unavailable",
+            "trace_id": "45187e0c-7604-42f6-a2b9-52016bc1b1a5",
+            "mode": "local-model-rag",
+            "storage": "pgvector"
+          },
+          "elapsed_ms": 246.4965300000017,
+          "metadata": {
+            "chunk_ids": [],
+            "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+          }
+        },
+        {
+          "case": "actual_transport_timeout_1ms",
+          "question": "What must I record in a projector repair ticket?",
+          "response": {
+            "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+            "citations": [],
+            "handoff": true,
+            "reason": "model_unavailable",
+            "trace_id": "48f96631-734c-46a9-b162-f06791b727a8",
+            "mode": "local-model-rag",
+            "storage": "pgvector"
+          },
+          "elapsed_ms": 86.25492400000212,
+          "metadata": {
+            "chunk_ids": [],
+            "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+          }
+        },
+        {
+          "case": "grant_revoked",
+          "question": "What must I record in a projector repair ticket?",
+          "response": {
+            "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+            "citations": [],
+            "handoff": true,
+            "reason": "unsupported",
+            "trace_id": "0a6d36b9-176c-4fcd-b3e4-b12b3b9f17a9",
+            "mode": "local-model-rag",
+            "storage": "pgvector"
+          },
+          "elapsed_ms": 82.63585999998213,
+          "metadata": {
+            "chunk_ids": [],
+            "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+          }
+        }
+      ],
+      "limits": "Synthetic demonstration, not a held-out quality score or full core release. Citation ID/quote matching does not prove semantic support; inspect the actual answer."
+    }
+  },
+  "screenshots": {
+    "origin": "Native Windows/SQLite actual browser/model workflow, visually inspected",
+    "sha256": {
+      "indexing-admin.png": "fa9b57bf268536eaa1c3daf8db24e3167814f250d0d313cb1fdd9dfbfc5c508a",
+      "indexing-mobile.png": "57b765ee63e3ffa457c7306f00da71787927bd36ba9632fea2a889fc5fa3cab6",
+      "cited-answer.png": "bac7c1132bc5d28efff7f4cf96ab9510e00dc932c79db1f0101b011c5200f0bf",
+      "approved-review.png": "61f117a36c6da5b0234fa2e03cabae4b505a40ded1c15af85992508f2b1a920b",
+      "model-outage.png": "5c1b92c7991fcb73d436d760e6b3490801c851145b9738e41090aa7eabc45f25",
+      "app-process-restart.png": "3a65839aca0dfe67fb79c6d5ab9738923a727e2e7c117fc1a3813d856412bfbb"
+    }
+  },
+  "limits": "Graceful full app-process stop/start, not app crash or database restart. Worker crash/replacement is separate. Historical same-process app-instance report is unchanged. Synthetic fixtures do not establish held-out answer quality, production capacity or external ticket-provider integration; no release tag."
+}

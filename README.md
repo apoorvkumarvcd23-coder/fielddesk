@@ -26,6 +26,10 @@ review, operator claim/resolution and human-proposed/approved tickets. Review
 ownership, revisions, expiry/redaction and identity-bound ticket reads are tested.
 See [interactive setup and clean isolated browser demo](docs/OPERATOR_WORKFLOW.md).
 Actual local-model and real PostgreSQL CI evidence remain separately labelled.
+The [16 November process-restart demonstration](docs/OPERATOR_WORKFLOW.md#full-app-process-restart--16-november-2026)
+verifies fresh app processes, exact persisted review/ticket/job state and new
+actual cited inference after restart on native SQLite and clean Linux/pgvector.
+Final core acceptance remains 17 November; held-out evaluation follows later.
 
 **CORE02 delivered:** versioned knowledge, exact source-offset chunks, durable
 indexing jobs and a separate local-model embedding path. A real PostgreSQL/

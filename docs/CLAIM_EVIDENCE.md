@@ -44,7 +44,8 @@ grounding, throughput, production scale or customer use.
 | Opt-in owned handoff review, hash binding and bounded queue | reviews.py, migration 4 | Consent/mismatch/owner/answered-trace/quota regressions |
 | Claim/revision/assignment/resolve and expiry/withdrawal | ReviewStore | Stale editor, wrong operator, expiry/redaction and repeat-safe tests |
 | Human proposal/approval shares existing ticket workflow with identity scope | rag_ticket_links, ReviewStore.approve | Concurrent approval, self/foreign-owner/legacy denial and atomic rollback tests |
-| Actual learned UI → handoff → approved ticket persists across app-instance recreation | demo_workflow.py, browser/workflow.mjs | Fresh FastAPI instance/listener in the same process; exact database/HTTP state comparison, distinct from the worker-process crash drill |
+| Historical CORE08 learned UI → handoff → approved ticket persists across app-instance recreation | 14 November demo_workflow.py/browser workflow | Historical report records a fresh FastAPI instance/listener in the same process; distinct from full app-process and worker-process drills |
+| Full app-process stop/start preserves exact review/ticket/job and serves fresh cited inference | workflow_server.py, demo_workflow.py, browser/workflow.mjs --resume | Four distinct app PIDs, confirmed zero exits, exact HTTP state, repeated other-user denial and post-restart actual model counters in the 16 November report |
 
 CORE10 extends the verifier with `workflow_server.py` app subprocesses: each
 process must exit before replacement; fresh authenticated HTTP reads compare
@@ -52,6 +53,9 @@ exact review/ticket/job state and Chromium performs a new cited model answer.
 This full process stop/start is distinct from the historical 14 November
 same-process app-instance report. New source CI and its actual-model artifact
 must pass before this new process verification is claimed as recorded evidence.
+Recorded [16 November native and Linux/pgvector evidence](app-process-restart-2026-11-16.json)
+and [source CI](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/runs/43753662693)
+pass. See [inspected screenshots, exact scope and reproduction](OPERATOR_WORKFLOW.md).
 
 See [operator contracts and reproducible verification](OPERATOR_WORKFLOW.md).
 

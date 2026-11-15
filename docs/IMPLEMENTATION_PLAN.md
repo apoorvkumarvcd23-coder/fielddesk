@@ -13,6 +13,15 @@ acceptance is 17 November; mocked inference alone does not satisfy it.
 
 ## Source-grounded starting point
 
+### Process-restart gate — 16 November 2026
+
+The [actual native and clean Linux/pgvector workflow](OPERATOR_WORKFLOW.md)
+now verifies full app-process stop/start, exact durable review/ticket/job state,
+post-restart user boundaries and a new cited model answer. Historical CORE08
+same-process app-instance evidence stays separately labelled. Final four-project
+clean-clone/claim audit remains 17 November, with held-out quality and full v1
+hardening gates still scheduled for December.
+
 ### Implemented operator slice — 14 November 2026
 
 The root vanilla HTML/JS workspace now connects identity-scoped document ingest,
