@@ -13,6 +13,13 @@ acceptance is 17 November; mocked inference alone does not satisfy it.
 
 ## Source-grounded starting point
 
+### Core acceptance — 17 November 2026
+
+The [bounded core audit](CORE_ACCEPTANCE.md) verifies the complete vertical
+workflow and its model/permission/restart evidence from clean checkouts. Its
+allowed project wording is deliberately narrower than the full December plan.
+v0.1.0 tagging requires the reviewed acceptance commit's complete CI to pass.
+
 ### Process-restart gate — 16 November 2026
 
 The [actual native and clean Linux/pgvector workflow](OPERATOR_WORKFLOW.md)

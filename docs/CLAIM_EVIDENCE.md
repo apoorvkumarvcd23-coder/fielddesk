@@ -1,8 +1,9 @@
 # Claim-to-code/test ledger
 
 CORE02 indexing, CORE05 identity/RAG and CORE08 operator workflows are implemented.
-Final FieldDesk core acceptance remains the 17 November evidence audit. No
-core/release tag is earned by these slices.
+The [17 November bounded core audit](CORE_ACCEPTANCE.md) now maps their complete
+workflow to clean-clone evidence. Its reviewed acceptance commit must pass full
+CI before a v0.1.0 tag; the larger held-out quality/v1.0.0 gates remain December.
 
 | Implemented behavior | Code | Evidence |
 | --- | --- | --- |
@@ -35,7 +36,8 @@ grounding, throughput, production scale or customer use.
 
 ## Remaining core gates
 
-- Full clean-clone app/worker/model setup, screenshots and complete core acceptance.
+- [Bounded core audit and release-head CI gate](CORE_ACCEPTANCE.md). The held-out
+  evaluation, broader hardening and full v1.0.0 criteria remain later gates.
 
 | CORE08 behavior | Code | Executable evidence |
 | --- | --- | --- |

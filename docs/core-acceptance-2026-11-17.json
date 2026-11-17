@@ -1,0 +1,195 @@
+{
+  "audit_date_asia_kolkata": "2026-11-17",
+  "project": "FieldDesk",
+  "core_scope": "v0.1.0 bounded core only; December v1.0.0 gates excluded",
+  "audited_input_sha": "b13a370c5dd26992b54692bbbb47c611b88929b9",
+  "clean_clone": true,
+  "previous_verified_ci": "https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/runs/43754491373",
+  "release_gate": "Tag only the reviewed default-branch acceptance commit after its own complete clean-checkout CI passes; the immutable tag/CI ledger is published in the profile repository.",
+  "criteria": [
+    {
+      "contract": "Versioned corpus and nonduplicating durable index",
+      "implementation": "knowledge.py; storage.py migrations; index_worker.py",
+      "verification": "Replay/lease fencing/rollback/version replacement tests; actual learned worker crash exit 23/reclaim attempt 2"
+    },
+    {
+      "contract": "Actual embedding, local generation and pgvector",
+      "implementation": "embeddings.py; generation.py; rag.py EVIDENCE_SQL",
+      "verification": "Actual nomic 768-dimensional/Qwen3.5:9b Linux pgvector reports; native SQLite report explicitly separate"
+    },
+    {
+      "contract": "Permission boundaries before prompting and at assembly",
+      "implementation": "rag.py authenticate/retrieve/permitted/answer",
+      "verification": "12 test_denial_* parameterizations in the 61-test suite, including grant/version/identity revocation; actual restricted-source HTTP 404"
+    },
+    {
+      "contract": "UI ingest \u2192 ready \u2192 answer \u2192 handoff \u2192 review \u2192 approved ticket",
+      "implementation": "workspace.js; app.py; reviews.py",
+      "verification": "Actual Chromium/model workflow, explicit consent and human proposal/approval; concurrent approval/rollback and owner tests"
+    },
+    {
+      "contract": "Model failures and full app/worker restart",
+      "implementation": "demo_workflow.py; workflow_server.py; demo_indexing.py",
+      "verification": "Real closed generation connection and 1ms deadline; four distinct app PIDs/zero exits; exact persisted state/new cited answer"
+    },
+    {
+      "contract": "Original 16-case diagnostic and bounded quality scope",
+      "implementation": "evaluate_retrieval.py; fixtures/retrieval_cases.json",
+      "verification": "Exact parsed baseline unchanged: 9/10 top-1, 4/6 unsupported handoffs, 18/18 source quotes; all 16 results retained"
+    }
+  ],
+  "native_current_run": {
+    "platform": "Windows / SQLite exact scan; not native pgvector",
+    "tests": 61,
+    "permission_denial_parameterizations": 12,
+    "embedding": {
+      "backend": "ollama",
+      "model": "nomic-embed-text:v1.5",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+      "dimensions": 768,
+      "chunking_version": "chars-600-overlap-80-v1"
+    },
+    "generation": {
+      "model": "qwen3.5:9b",
+      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7"
+    },
+    "app_process_lifecycle": [
+      {
+        "stage": "initial",
+        "pid": 36296,
+        "launcher_pid": 53680,
+        "ready": true,
+        "exit_confirmed": true,
+        "exit_code": 0
+      },
+      {
+        "stage": "outage",
+        "pid": 40860,
+        "launcher_pid": 36428,
+        "ready": true,
+        "exit_confirmed": true,
+        "exit_code": 0
+      },
+      {
+        "stage": "timeout",
+        "pid": 54044,
+        "launcher_pid": 51336,
+        "ready": true,
+        "exit_confirmed": true,
+        "exit_code": 0
+      },
+      {
+        "stage": "restarted",
+        "pid": 53336,
+        "launcher_pid": 17352,
+        "ready": true,
+        "exit_confirmed": true,
+        "exit_code": 0
+      }
+    ],
+    "exact_review_ticket_job_preserved": true,
+    "ticket_count": 1,
+    "post_restart_answer": {
+      "answer": "To request a projector repair, you must record the room code and the fault description in the ticket.",
+      "citations": [
+        {
+          "chunk_id": "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1",
+          "document_id": "d7e3b363d8556a52cdbcc5ce855e993ebfbabb1a073f02a316a1027c51161e6a",
+          "version_id": "ddda2c18e9bf2b9717c4bea3206aa2082b8300609084492773c750b0d820c211",
+          "space_id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+          "title": "Synthetic projector repairs",
+          "quote": "To request a projector repair, record the room code and the fault description in the ticket.",
+          "start_offset": 52,
+          "end_offset": 144
+        }
+      ],
+      "handoff": false,
+      "reason": "answered",
+      "trace_id": "eff0ac53-dc61-4236-a64a-584a982108e4",
+      "mode": "local-model-rag",
+      "storage": "sqlite-exact-scan"
+    },
+    "post_restart_model_counters": {
+      "model": "qwen3.5:9b",
+      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+      "prompt_eval_count": 260,
+      "eval_count": 143,
+      "total_duration": 37600693100,
+      "load_duration": 10390294600,
+      "chunk_ids": [
+        "c893be2ecddfd877525a1d4e3e1a37af305fd036986b1ac3823d3565667881f1"
+      ],
+      "query_sha256": "7c9a40bc1a24b92e16740ff5ab3aca75f4f9d81c82353f3bf50e49867ee92cc7"
+    },
+    "outage": {
+      "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+      "citations": [],
+      "handoff": true,
+      "reason": "model_unavailable",
+      "trace_id": "e02d9040-f941-47db-a6a0-573e32d7d20a",
+      "mode": "local-model-rag",
+      "storage": "sqlite-exact-scan"
+    },
+    "actual_1ms_transport_timeout": {
+      "answer": "I cannot answer from your current permitted notes. Contact a service operator.",
+      "citations": [],
+      "handoff": true,
+      "reason": "model_unavailable",
+      "trace_id": "5e20a619-c387-457f-86c7-ce70c92f9a58",
+      "mode": "local-model-rag",
+      "storage": "sqlite-exact-scan"
+    },
+    "diagnostic_all16_unchanged": true,
+    "diagnostic_metrics": {
+      "top1_accuracy": {
+        "correct": 9,
+        "total": 10,
+        "rate": 0.9
+      },
+      "hit_at_3": {
+        "correct": 9,
+        "total": 10,
+        "rate": 0.9
+      },
+      "unanswerable_handoff": {
+        "correct": 4,
+        "total": 6,
+        "rate": 0.6666666666666666
+      },
+      "routing_accuracy": {
+        "correct": 13,
+        "total": 16,
+        "rate": 0.8125
+      },
+      "grounded_citations": {
+        "correct": 18,
+        "total": 18,
+        "rate": 1.0
+      }
+    }
+  },
+  "prior_evidence_sha256": {
+    "app-process-restart-2026-11-16.json": "dda2c640a2506ca3df8bad9f0fdd9cf075e18b7c8d3f9cd06162ca92748683f3",
+    "retrieval-baseline.json": "d34a0ee3350e6bd0a01934c888b824c4a85d43bd16c8c44317b353d096c09cbb"
+  },
+  "published_screenshot": {
+    "path": "evidence/2026-11-17/core-acceptance.png",
+    "sha256": "ce0ee967df4a66744218ac4a13a994643919aac0990b41da05845385bc40da48",
+    "origin": "Actual native Windows acceptance run; visually reviewed before publication"
+  },
+  "tracked_file_boundary_review": {
+    "forbidden_local_files_tracked": 0,
+    "known_credential_patterns": 0,
+    "limits": "Targeted current-file checks, not a claim of comprehensive security review."
+  },
+  "allowed_project_wording": [
+    "Built versioned document ingestion and a 768-dimensional pgvector index with leased workers, fenced writes and atomic index publication.",
+    "Implemented document-granted local-model answers, validated source citations, opt-in review and human-approved tickets; verified real model workflows and separate app/worker restarts."
+  ],
+  "remaining_limits": [
+    "SQLite/hash baseline is separate from learned pgvector/local-model evidence.",
+    "A matched citation quote does not prove answer relevance or general accuracy. Small synthetic demos are not held-out evaluation.",
+    "The 40-case development/held-out evaluation, broader quotas/retention and full December quality/hardening gates remain open.",
+    "Tickets are local persisted workflow records, not an external production ticket provider."
+  ]
+}

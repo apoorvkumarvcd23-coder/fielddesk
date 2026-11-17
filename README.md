@@ -2,6 +2,11 @@
 
 ## December 2026 delivery
 
+**Bounded core audited — 17 November 2026.** See the [core acceptance and claim
+ledger](docs/CORE_ACCEPTANCE.md) for real-model/pgvector evidence, clean-clone
+checks and the release-head CI gate. v0.1.0 covers the runnable core; the held-out
+evaluation and full December v1.0.0 gates remain open.
+
 The current December v1 plan adds versioned knowledge, document permissions, durable indexing and an evaluated local-model path while retaining the working offline baseline.
 
 See the [implementation plan and acceptance checks](docs/IMPLEMENTATION_PLAN.md).
@@ -18,7 +23,7 @@ denies restricted sources and handles model outage/timeout. See the
 [actual local evidence](docs/local-rag-2026-11-11.json). The separate actual-model CI
 job checks learned pgvector retrieval on Linux/CPU and publishes its exact model,
 digest and counter report. Check the [latest workflow result](https://github.com/apoorvkumarvcd23-coder/fielddesk/actions/workflows/tests.yml)
-for PostgreSQL model verification; final core acceptance remains 17 November.
+for PostgreSQL model verification; see the separate 17 November core audit above.
 
 **CORE08 operator workflow:** the root interface now supports identity sign-in,
 approved-text ingest/job status, permitted cited answers, explicit opt-in handoff
@@ -29,7 +34,7 @@ Actual local-model and real PostgreSQL CI evidence remain separately labelled.
 The [16 November process-restart demonstration](docs/OPERATOR_WORKFLOW.md#full-app-process-restart--16-november-2026)
 verifies fresh app processes, exact persisted review/ticket/job state and new
 actual cited inference after restart on native SQLite and clean Linux/pgvector.
-Final core acceptance remains 17 November; held-out evaluation follows later.
+The 17 November core audit retains both platform labels; held-out evaluation follows later.
 
 **CORE02 delivered:** versioned knowledge, exact source-offset chunks, durable
 indexing jobs and a separate local-model embedding path. A real PostgreSQL/
