@@ -82,15 +82,18 @@ class KnowledgeStore:
                         WHERE g.document_id=? AND g.identity_id=? AND g.enabled=1 AND p.enabled=1''' + suffix, (document_id, actor_id)).fetchone()
                     if not allowed:
                         raise PermissionError('Source access not granted')
-            inserted = self.db.run(conn, '''INSERT INTO document_versions VALUES (?,?,?,?,?,?,?)
+            self.db.run(conn, '''INSERT INTO document_versions VALUES (?,?,?,?,?,?,?)
                 ON CONFLICT(id) DO NOTHING''',
-                (version_id, document_id, title, body, content_hash, CHUNKING_VERSION, now)).rowcount
-            self.db.run(conn, '''INSERT INTO index_jobs
+                (version_id, document_id, title, body, content_hash, CHUNKING_VERSION, now))
+            enqueued = self.db.run(conn, '''INSERT INTO index_jobs
                 (id,version_id,space_id,status,available_at,created_at) VALUES (?,?,?,'pending',?,?)
-                ON CONFLICT(version_id,space_id) DO NOTHING''', (job_id, version_id, space_id, now, now))
+                ON CONFLICT(version_id,space_id) DO NOTHING''', (job_id, version_id, space_id, now, now)).rowcount
             self.db.run(conn, '''INSERT INTO index_targets(document_id,space_id,desired_version_id)
                 VALUES (?,?,?) ON CONFLICT(document_id,space_id) DO NOTHING''', (document_id, space_id, version_id))
-            if inserted:
+            # Versions are shared, but replacement/replay identity is per space.
+            # A first enqueue must advance this target even if another space
+            # already knows the content; an existing job replay must not.
+            if enqueued:
                 self.db.run(conn, 'UPDATE index_targets SET desired_version_id=? WHERE document_id=? AND space_id=?',
                             (version_id, document_id, space_id))
         # Exact replays return the same job; older replays do not roll back a newer target.

@@ -1,0 +1,71 @@
+{
+  "observed_at_utc": "2026-11-20T08:42:08.674047+00:00",
+  "date_ist": "2026-11-20",
+  "base_commit": "ca4d02af63c46eee86c9b2cf6e0204ee895acb2d",
+  "platform": "Windows",
+  "python": "3.12.13",
+  "scope": "Corpus replacement regressions on the current change set; publication commit is identified by Git history and separate CI.",
+  "regressions": {
+    "sqlite_tests": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cross_space_cases_failed_before_fix": 2,
+    "unicode_lengths": [
+      1,
+      600,
+      601,
+      1120,
+      1121,
+      20000
+    ],
+    "real_database_failure_after_ready_pointer_update": "passed",
+    "exact_offline_16_case_report_unchanged": true,
+    "adapter_limit": "Tests use deterministic adapters; they do not measure real-model answer quality."
+  },
+  "model_readiness": {
+    "purpose": "Real local model readiness only; not retrieval or answer-quality evidence",
+    "ollama_version": "0.17.7",
+    "embedding_space": {
+      "id": "73121744c3a10b54d5aecee1c5b685ba28ef0e48f5ab34ddd5c89a259235bf05",
+      "backend": "ollama",
+      "model": "nomic-embed-text:v1.5",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+      "dimensions": 768,
+      "chunking_version": "chars-600-overlap-80-v1"
+    },
+    "generation_probe": {
+      "model": "qwen3.5:9b",
+      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+      "options": {
+        "temperature": 0,
+        "seed": 7,
+        "num_ctx": 2048,
+        "num_predict": 32
+      },
+      "prompt": "Reply with exactly the single word READY.",
+      "response": "READY",
+      "prompt_eval_count": 20,
+      "eval_count": 2,
+      "total_duration_ns": 11672452700,
+      "done": true
+    }
+  },
+  "learned_indexing": {
+    "storage": "SQLite",
+    "backend": "ollama",
+    "model": "nomic-embed-text:v1.5",
+    "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "dimensions": 768,
+    "stored_dimensions_min_max": [
+      768,
+      768
+    ],
+    "worker_crash_exit_code": 23,
+    "restarted_worker_completed": true,
+    "exact_replay_no_duplicates": true,
+    "source_offsets_verified": true,
+    "previous_ready_retained_until_replacement": true
+  },
+  "limits": "Native SQLite is separate from Linux pgvector/current-commit actual-model CI. No held-out quality, production or full December v1 claim."
+}

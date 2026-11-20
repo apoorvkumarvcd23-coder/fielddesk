@@ -11,6 +11,15 @@ Record the 16-case diagnostic honestly. The larger held-out evaluation and full
 v1 quality/hardening gates follow after the core, through December. Final core
 acceptance is 17 November; mocked inference alone does not satisfy it.
 
+## Current extension — XF01
+
+Current main fixes per-space target advancement when indexing already-known
+source versions and expands exact-span, duplicate-content/grant and actual
+publication-rollback regressions. See [corpus replacement contracts](INDEXING_RUNBOOK.md#corpus-replacement-and-replay--xf01).
+The existing v0.1.0 core was accepted 18 November; its tag remains unchanged.
+Migrations are unchanged, and this increment does not complete the later
+held-out quality, retention or full v1 release gates.
+
 ## Source-grounded starting point
 
 ### Core acceptance — 17 November 2026

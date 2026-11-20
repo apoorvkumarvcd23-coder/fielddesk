@@ -240,3 +240,71 @@ def test_citation_grammar_contains_only_exact_request_evidence_without_mutating_
     assert 'allowed-1' not in json.dumps(citation_schema([evidence[1]]))
     with pytest.raises(EmbeddingError, match='invalid_citations'):
         citation_schema([{'id':'tiny', 'text':'short'}])
+
+
+def test_equal_content_in_distinct_documents_keeps_source_ids_and_grants_separate(rig):
+    client, app, generator, actors, public, _ = rig
+    store = app.state.knowledge
+    body = store.ready_chunks(public['version_id'], public['space_id'])[0]['text']
+    clone = store.ingest('second-projector-source', 'Synthetic repair manual', body)
+    assert run_once(store, HashEmbedder())['outcome'] == 'ready'
+    set_grant(store.db, clone['document_id'], actors['bob']['id'], True)
+    assert clone['document_id'] != public['document_id'] and clone['version_id'] != public['version_id']
+    clone_chunk = store.ready_chunks(clone['version_id'], clone['space_id'])[0]
+    first_chunk = store.ready_chunks(public['version_id'], public['space_id'])[0]
+    assert clone_chunk['text'] == first_chunk['text'] and clone_chunk['id'] != first_chunk['id']
+    assert {row['document_id'] for row in app.state.rag.retrieve(actors['alice']['id'], 'projector repair service ticket')} == {public['document_id']}
+    assert client.get('/rag/chunks/' + clone_chunk['id'], headers=actors['alice']['headers'],
+                      params={'space_id': clone['space_id']}).status_code == 404
+    assert client.get('/rag/chunks/' + clone_chunk['id'], headers=actors['bob']['headers'],
+                      params={'space_id': clone['space_id']}).status_code == 200
+
+
+def test_database_failure_after_ready_pointer_update_preserves_authorized_corpus_and_recovers(rig):
+    client, app, _, actors, public, _ = rig
+    store = app.state.knowledge
+    query = 'projector repair service ticket'
+    old_evidence = app.state.rag.retrieve(actors['alice']['id'], query)
+    old_chunk = old_evidence[0]
+    replacement = store.ingest('projector', 'Replacement manual', 'Projector repair service ticket replacement instructions. ' * 35)
+    with store.db.connect() as conn:
+        migrations = [dict(row) for row in store.db.run(conn, 'SELECT * FROM schema_migrations ORDER BY version').fetchall()]
+        counts = {table: store.db.run(conn, 'SELECT count(*) AS n FROM ' + table).fetchone()['n']
+                  for table in ['document_chunks', 'chunk_embeddings']}
+        if store.db.postgres:
+            conn.execute("""CREATE FUNCTION xf01_publish_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+                BEGIN IF NEW.status='ready' THEN RAISE EXCEPTION 'synthetic publication failure'; END IF; RETURN NEW; END; $$""")
+            conn.execute('CREATE TRIGGER xf01_publish_guard BEFORE UPDATE ON index_jobs FOR EACH ROW EXECUTE FUNCTION xf01_publish_guard()')
+        else:
+            conn.execute("""CREATE TRIGGER xf01_publish_guard BEFORE UPDATE OF status ON index_jobs
+                WHEN NEW.status='ready' BEGIN SELECT RAISE(ABORT,'synthetic publication failure'); END""")
+    try:
+        assert run_once(store, HashEmbedder())['outcome'] == 'retry_or_failed'
+        assert store.job(replacement['id'])['indexed_chunks'] == 0
+        assert store.document(public['document_id'])['indexes'][0]['ready_version_id'] == public['version_id']
+        assert app.state.rag.retrieve(actors['alice']['id'], query) == old_evidence
+        assert client.get('/rag/chunks/' + old_chunk['id'], headers=actors['alice']['headers'],
+                          params={'space_id': public['space_id']}).status_code == 200
+        assert client.get('/rag/chunks/' + old_chunk['id'], headers=actors['bob']['headers'],
+                          params={'space_id': public['space_id']}).status_code == 404
+        store.db.initialize()
+        with store.db.connect() as conn:
+            assert [dict(row) for row in store.db.run(conn, 'SELECT * FROM schema_migrations ORDER BY version').fetchall()] == migrations
+            for table, n in counts.items():
+                assert store.db.run(conn, 'SELECT count(*) AS n FROM ' + table).fetchone()['n'] == n
+    finally:
+        with store.db.connect() as conn:
+            if store.db.postgres:
+                conn.execute('DROP TRIGGER xf01_publish_guard ON index_jobs')
+                conn.execute('DROP FUNCTION xf01_publish_guard()')
+            else:
+                conn.execute('DROP TRIGGER xf01_publish_guard')
+    retry_at = store.job(replacement['id'])['available_at']
+    store.clock = lambda: retry_at + 1
+    assert run_once(store, HashEmbedder())['outcome'] == 'ready'
+    new_evidence = app.state.rag.retrieve(actors['alice']['id'], query)
+    assert new_evidence and {row['version_id'] for row in new_evidence} == {replacement['version_id']}
+    assert client.get('/rag/chunks/' + old_chunk['id'], headers=actors['alice']['headers'],
+                      params={'space_id': public['space_id']}).status_code == 404
+    assert client.get('/rag/chunks/' + new_evidence[0]['id'], headers=actors['bob']['headers'],
+                      params={'space_id': public['space_id']}).status_code == 404

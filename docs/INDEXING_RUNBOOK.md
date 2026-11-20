@@ -1,10 +1,11 @@
-# Versioned indexing foundation (CORE02)
+# Versioned indexing foundation and corpus replacement
 
-This slice implements ingestion, durable jobs and ready chunk indexes. It does
-not yet connect learned vectors to `/chat`, generate cited model answers or
-replace shared bearer keys with identity/document grants. The current browser
-continues to use the original offline corpus. New knowledge routes are operator
-only until the document authorization slice is implemented.
+The historical CORE02 foundation below is now part of the accepted v0.1.0 core.
+Identity/document-granted local-model RAG and the operator interface are delivered
+separately from the retained offline `/chat` path; see [RAG](RAG_RUNBOOK.md) and
+[operator workflow](OPERATOR_WORKFLOW.md). Legacy knowledge routes remain operator
+only and cannot edit identity-managed sources. The original setup/evidence retains
+its source/platform labels.
 
 ```mermaid
 flowchart LR
@@ -138,11 +139,13 @@ disables `.env` loading for explicit environment-driven tools and isolated demos
   records safe error categories, not exception bodies, prompts or credentials.
   Failed jobs stay visible; an operator requeue control is future work.
 - The previous ready version stays queryable in its space during replacement.
-  The learned-chat slice must filter grants before retrieval and recheck grants/
-  revocation when assembling an answer. That functionality is not delivered here.
+  The learned-chat path filters grants before retrieval and rechecks grants/
+  revocation when assembling an answer; it is separate from the offline path.
 
-`storage.py` owns two checked migrations. Migration 1 adopts the original four
-tables without deleting their rows; migration 2 adds the knowledge schema. API
+`storage.py` owns four checked migrations. Migration 1 adopts the original four
+tables without deleting their rows; migration 2 adds the knowledge schema,
+migration 3 adds identity/document permissions and migration 4 adds durable review
+and ticket linkage. API
 and worker startup serialize migration application. Applied checksums must match;
 future changes require new migrations. Back up personal demo databases before
 upgrading; automated tests use disposable databases only.
@@ -157,3 +160,42 @@ python evaluate_retrieval.py
 The original 16 diagnostic results remain unchanged: 9/10 top-1, 4/6 appropriate
 unsupported handoffs and 18/18 matching quotes. These diagnose the legacy hash
 path; source matching is not a measure of model answer quality.
+
+
+## Corpus replacement and replay — XF01
+
+Source versions are shared across embedding spaces, while each source/space has
+its own desired and ready pointers. The first enqueue of a (version, space) job
+advances that space's desired target, even if the version already exists because
+another space indexed it. Previously the target advanced only for a globally new
+version: a second space could finish a replacement job but keep serving its old
+ready index. The enqueue now controls target advancement, under the existing
+document lock and transaction.
+
+An exact existing-job replay returns the same job and does not retarget a later
+submission. This identity is per space, not a global content timestamp. First
+submission of known content to a different space is a new indexing request there.
+There is no automatic synchronization between spaces or explicit rollback/requeue
+control for already-indexed jobs in this increment.
+
+Replacement preserves the previous ready corpus until atomic publication.
+A failed publication after its ready-pointer update rolls back the pointer,
+new chunks/vectors and ready-job status together. A retry can then publish the
+replacement. Retrieval and source URLs remain grant-filtered throughout; old
+chunk URLs cease to resolve once a new ready version supersedes them.
+
+New regression coverage includes concurrent duplicate submissions, two independent
+spaces, exact source spans at 1/600/601/1120/1121/20000 Unicode characters (including
+emoji, combining accents and CRLF), restart/migration reinitialization, identical
+content in separately granted documents, and a real database trigger failing the
+final publication write. Applied migration 1–4 statements are unchanged; this
+fix needs no schema rewrite.
+
+The [20 November native report](corpus-regressions-2026-11-20.json) records
+71 SQLite tests passing, two cross-space cases failing before the repair, and
+all 16 offline diagnostic results exactly unchanged. Test adapters are deterministic.
+A separate actual Ollama/nomic 768-dimensional SQLite worker crash/replay/replacement
+demo and Qwen readiness probe pass; readiness is not RAG answer-quality evidence.
+The current-commit CI separately runs the full suite on SQLite and pgvector plus
+actual model/pgvector and app-process/browser workflows. Full held-out evaluation
+and December v1 gates remain open.

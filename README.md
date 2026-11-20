@@ -2,10 +2,12 @@
 
 ## December 2026 delivery
 
-**Bounded core audited — 17 November 2026.** See the [core acceptance and claim
-ledger](docs/CORE_ACCEPTANCE.md) for real-model/pgvector evidence, clean-clone
-checks and the release-head CI gate. v0.1.0 covers the runnable core; the held-out
-evaluation and full December v1.0.0 gates remain open.
+**v0.1.0 core accepted — 18 November 2026.** See the [core acceptance and claim
+ledger](docs/CORE_ACCEPTANCE.md) and [immutable release/CI ledger](https://github.com/apoorvkumarvcd23-coder/apoorvkumarvcd23-coder/blob/main/docs/CORE_RELEASES_2026-11-18.md).
+Current main fixes cross-space corpus replacement and broadens Unicode,
+duplicate-content and publication-rollback guarantees; see the
+[indexing contract and regression evidence](docs/INDEXING_RUNBOOK.md#corpus-replacement-and-replay--xf01).
+Held-out evaluation and full December v1.0.0 gates remain open.
 
 The current December v1 plan adds versioned knowledge, document permissions, durable indexing and an evaluated local-model path while retaining the working offline baseline.
 

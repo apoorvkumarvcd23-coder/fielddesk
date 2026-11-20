@@ -73,3 +73,17 @@ for PostgreSQL verification; a failed run leaves that gate open. Local Docker
 could not start on 11 November; the SQLite report is not PostgreSQL evidence.
 The generation readiness probe alone does not prove a cited RAG answer. See the
 implementation plan for the later core and December evaluation/release gates.
+
+
+## XF01 corpus replacement extension
+
+| Implemented behavior | Code | Evidence |
+| --- | --- | --- |
+| Known versions advance a second space; concurrent exact replays create one job and do not undo a later target | KnowledgeStore.ingest | Two new cross-space/concurrent cases in test_knowledge fail before the fix and pass after it |
+| Exact Unicode text/offsets survive boundary sizes and migration reinitialization | chunks_for, document_chunks, Database.initialize | Six persisted boundary cases at 1/600/601/1120/1121/20000 characters |
+| Identical content in distinct sources retains independent IDs and grants | document/version/chunk identifiers, RagService | Equal-content source-ID and cross-user source denial test |
+| A real database failure after pointer update preserves the authorized old corpus; retry replaces it atomically | KnowledgeStore.publish, Database.connect, RagService | SQLite/PostgreSQL trigger regression in test_rag, exact migrations/row counts, old/new source permission checks |
+
+[Runbook and native report](INDEXING_RUNBOOK.md#corpus-replacement-and-replay--xf01).
+Deterministic regressions, actual model readiness/indexing and actual-model RAG
+CI are distinct evidence. No new answer-quality or benchmark claim is made.

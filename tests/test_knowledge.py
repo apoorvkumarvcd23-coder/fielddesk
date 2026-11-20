@@ -304,3 +304,59 @@ def test_ollama_adapter_checks_dimensions_digest_and_uses_no_silent_truncation(m
         adapter.embed(['Synthetic text'])
     with pytest.raises(ValueError, match='loopback'):
         OllamaEmbedder(base_url='https://external.invalid')
+
+
+@pytest.mark.parametrize('submitters', [1, 6])
+def test_existing_versions_replace_independently_in_a_second_space_and_exact_replays_do_not_retarget(store, submitters):
+    class OtherSpace:
+        # Synthetic adapter; this is not learned-model evidence.
+        space = Space('test', 'replacement-fixture', 'fixed-fixture', 3)
+        def embed(self, texts):
+            return [[1.0, 0.0, 0.0] for _ in texts]
+    other = OtherSpace()
+    store.register_space(other.space)
+    first = store.ingest('manual', 'First', 'Original approved instructions.')
+    run_once(store, HashEmbedder())
+    second = store.ingest('manual', 'Second', 'Replacement approved instructions.')
+    run_once(store, HashEmbedder())
+    other_first = store.ingest('manual', 'First', 'Original approved instructions.', other.space.id)
+    run_once(store, other)
+    with ThreadPoolExecutor(max_workers=submitters) as pool:
+        replacements = list(pool.map(lambda _: store.ingest(
+            'manual', 'Second', 'Replacement approved instructions.', other.space.id), range(submitters)))
+    assert len({job['id'] for job in replacements}) == 1
+    replacement = replacements[0]
+    assert replacement['version_id'] == second['version_id']
+    indexes = {row['space_id']: row for row in store.document(first['document_id'])['indexes']}
+    assert indexes[other.space.id]['desired_version_id'] == second['version_id']
+    assert indexes[other.space.id]['ready_version_id'] == first['version_id']
+    assert indexes[first['space_id']]['ready_version_id'] == second['version_id']
+    # Replay identity is (version, space), not just the shared source version.
+    assert store.ingest('manual', 'First', 'Original approved instructions.', other.space.id)['id'] == other_first['id']
+    assert run_once(store, other)['outcome'] == 'ready'
+    indexes = {row['space_id']: row for row in store.document(first['document_id'])['indexes']}
+    assert all(row['ready_version_id'] == second['version_id'] for row in indexes.values())
+    assert store.ingest('manual', 'First', 'Original approved instructions.', other.space.id)['id'] == other_first['id']
+    assert {row['desired_version_id'] for row in store.document(first['document_id'])['indexes']} == {second['version_id']}
+    assert count(store, 'document_versions') == count(store, 'document_chunks') == 2
+    assert count(store, 'index_jobs') == count(store, 'chunk_embeddings') == 4
+
+
+@pytest.mark.parametrize('length', [1, 600, 601, 1120, 1121, 20000])
+def test_exact_unicode_source_spans_survive_chunk_boundaries_and_reinitialization(store, length):
+    body = ('🔧 café e\u0301\r\n ' * 2000)[:length]
+    job = store.ingest('unicode-manual', 'Exact source', body)
+    assert run_once(store, HashEmbedder())['outcome'] == 'ready'
+    expected = chunks_for(job['version_id'], body)
+    store.db.initialize()
+    restarted = KnowledgeStore(Database(store.db.url), clock=store.clock)
+    assert restarted.ready_chunks(job['version_id'], job['space_id']) == expected
+    with store.db.connect() as conn:
+        assert store.db.run(conn, 'SELECT body FROM document_versions WHERE id=?', (job['version_id'],)).fetchone()['body'] == body
+    for i, chunk in enumerate(expected):
+        assert chunk['ordinal'] == i and chunk['text'] == body[chunk['start_offset']:chunk['end_offset']]
+        assert chunk['end_offset'] - chunk['start_offset'] <= 600
+        if i:
+            assert chunk['start_offset'] == expected[i-1]['end_offset'] - 80
+    assert store.ingest('unicode-manual', 'Exact source', body)['id'] == job['id']
+    assert count(store, 'document_versions') == count(store, 'index_jobs') == 1
